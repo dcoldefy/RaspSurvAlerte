@@ -144,6 +144,10 @@ body {
   border: none;
 }
 
+.table-head-sticky th.sort-active {
+  color: var(--red);
+}
+
 #main-table tbody tr {
   transition: background 0.1s;
 }
