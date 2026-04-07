@@ -39,7 +39,7 @@ function updateSortHeaders() {
       small.className = 'sort-arrow d-block text-muted';
       small.style.fontSize = '0.65em';
       small.style.lineHeight = '1';
-      small.textContent = SORT.dir === 1 ? '▲ asc' : '▼ desc';
+      small.textContent = SORT.dir === 1 ? '▲' : '▼';
       th.appendChild(small);
     }
   });
