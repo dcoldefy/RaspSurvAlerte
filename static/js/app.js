@@ -32,15 +32,15 @@ function updateSortHeaders() {
   document.querySelectorAll('.col-sortable').forEach(th => {
     const col = th.dataset.col;
     th.classList.toggle('sort-active', col === SORT.col);
-    // retire les flèches précédentes
-    th.childNodes.forEach(n => { if (n.nodeType === 3) n.remove(); });
-    const arrow = th.querySelector('.sort-arrow');
-    if (arrow) arrow.remove();
+    const existing = th.querySelector('.sort-arrow');
+    if (existing) existing.remove();
     if (col === SORT.col) {
-      const span = document.createElement('span');
-      span.className = 'sort-arrow ms-1';
-      span.textContent = SORT.dir === 1 ? '▲' : '▼';
-      th.appendChild(span);
+      const small = document.createElement('small');
+      small.className = 'sort-arrow d-block text-muted';
+      small.style.fontSize = '0.65em';
+      small.style.lineHeight = '1';
+      small.textContent = SORT.dir === 1 ? '▲ asc' : '▼ desc';
+      th.appendChild(small);
     }
   });
 }
