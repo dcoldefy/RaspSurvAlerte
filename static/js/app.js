@@ -32,15 +32,10 @@ function updateSortHeaders() {
   document.querySelectorAll('.col-sortable').forEach(th => {
     const col = th.dataset.col;
     th.classList.toggle('sort-active', col === SORT.col);
-    const existing = th.querySelector('.sort-arrow');
-    if (existing) existing.remove();
     if (col === SORT.col) {
-      const small = document.createElement('small');
-      small.className = 'sort-arrow d-block text-muted';
-      small.style.fontSize = '0.65em';
-      small.style.lineHeight = '1';
-      small.textContent = SORT.dir === 1 ? '▲' : '▼';
-      th.appendChild(small);
+      th.dataset.arrow = SORT.dir === 1 ? '▲' : '▼';
+    } else {
+      delete th.dataset.arrow;
     }
   });
 }
