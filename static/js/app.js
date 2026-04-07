@@ -2,6 +2,49 @@
 
 'use strict';
 
+/* ── Tri colonnes ─────────────────────────────────────────────────── */
+
+const SORT = { col: null, dir: 1 }; // dir : 1=asc, -1=desc
+
+const NUM_COLS = new Set(['altitude_m', 'vitesse_kmh', 'cap_deg']);
+
+function sortRows(rows) {
+  if (!SORT.col) return rows;
+  const col = SORT.col;
+  return [...rows].sort((a, b) => {
+    let va = a[col], vb = b[col];
+    if (col === 'date') {
+      // DD/MM/YYYY → YYYYMMDD pour tri correct
+      const toISO = s => s ? s.split('/').reverse().join('') : '';
+      va = toISO(va); vb = toISO(vb);
+    }
+    if (NUM_COLS.has(col)) {
+      va = va ?? -Infinity; vb = vb ?? -Infinity;
+      return SORT.dir * (va - vb);
+    }
+    va = (va ?? '').toString().toLowerCase();
+    vb = (vb ?? '').toString().toLowerCase();
+    return SORT.dir * va.localeCompare(vb, 'fr');
+  });
+}
+
+function updateSortHeaders() {
+  document.querySelectorAll('.col-sortable').forEach(th => {
+    const col = th.dataset.col;
+    th.classList.toggle('sort-active', col === SORT.col);
+    // retire les flèches précédentes
+    th.childNodes.forEach(n => { if (n.nodeType === 3) n.remove(); });
+    const arrow = th.querySelector('.sort-arrow');
+    if (arrow) arrow.remove();
+    if (col === SORT.col) {
+      const span = document.createElement('span');
+      span.className = 'sort-arrow ms-1';
+      span.textContent = SORT.dir === 1 ? '▲' : '▼';
+      th.appendChild(span);
+    }
+  });
+}
+
 function updateStatus() {
   fetch('/api/status')
     .then(r => r.json())
@@ -49,14 +92,14 @@ function updateTable() {
       if (bdNuit)   bdNuit.textContent   = nNuit;
       if (bdDouble) bdDouble.textContent = nDouble;
 
-      const filtered = activeFilter === 'tous'
+      const filtered = sortRows(activeFilter === 'tous'
         ? rows
         : rows.filter(r => {
             if (activeFilter === 'ALT')      return r.code === 'ALT' || r.code === 'ALT+NUIT';
             if (activeFilter === 'NUIT')     return r.code === 'NUIT';
             if (activeFilter === 'ALT+NUIT') return r.code === 'ALT+NUIT';
             return true;
-          });
+          }));
 
       if (filtered.length === 0) {
         tbody.innerHTML = `
@@ -128,6 +171,20 @@ document.addEventListener('DOMContentLoaded', () => {
       btn.classList.add('active');
       window.RASPALERT = window.RASPALERT || {};
       window.RASPALERT.activeFilter = btn.dataset.filter;
+      updateTable();
+    });
+  });
+
+  document.querySelectorAll('.col-sortable').forEach(th => {
+    th.style.cursor = 'pointer';
+    th.addEventListener('click', () => {
+      if (SORT.col === th.dataset.col) {
+        SORT.dir *= -1;
+      } else {
+        SORT.col = th.dataset.col;
+        SORT.dir = 1;
+      }
+      updateSortHeaders();
       updateTable();
     });
   });
