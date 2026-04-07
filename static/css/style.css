@@ -148,12 +148,13 @@ body {
   color: var(--red);
 }
 
+.table-head-sticky th.sort-active {
+  white-space: pre;
+}
+
 .table-head-sticky th.sort-active::after {
-  content: attr(data-arrow);
-  display: block;
+  content: '\A' attr(data-arrow);
   font-size: 0.9em;
-  line-height: 1.2;
-  text-align: center !important;
   opacity: 0.9;
 }
 
