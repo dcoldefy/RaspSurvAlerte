@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% block title %}Réglages — RaspSurAlert{% endblock %}
+
+{% block content %}
+
+{% set ok = request.args.get('ok') %}
+{% if ok == 'profil' %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>Profil enregistré et coordonnées mises à jour.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+{% elif ok == 'seuils' %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>Seuils de détection mis à jour.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+{% endif %}
+
+<div class="row g-4">
+
+  <!-- Carte profil -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="bi bi-person-fill text-primary"></i>
+        <strong>Profil utilisateur</strong>
+      </div>
+      <div class="card-body">
+        <form method="post" action="/reglages/profil">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Nom</label>
+            <input type="text" class="form-control" name="nom"
+                   value="{{ cfg.profil.nom }}" placeholder="NOM" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Prénom</label>
+            <input type="text" class="form-control" name="prenom"
+                   value="{{ cfg.profil.prenom }}" placeholder="Prénom" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Adresse</label>
+            <input type="text" class="form-control" name="adresse"
+                   value="{{ cfg.profil.adresse }}" placeholder="123 rue de la Paix">
+          </div>
+          <div class="row g-2 mb-3">
+            <div class="col-4">
+              <label class="form-label fw-semibold">Code postal</label>
+              <input type="text" class="form-control" name="code_postal"
+                     id="cp-input" value="{{ cfg.profil.code_postal }}"
+                     placeholder="78000" maxlength="5">
+            </div>
+            <div class="col-8">
+              <label class="form-label fw-semibold">Commune</label>
+              <input type="text" class="form-control" name="ville"
+                     id="ville-input" value="{{ cfg.profil.ville }}"
+                     placeholder="Conflans-Sainte-Honorine"
+                     list="communes-list" required>
+              <datalist id="communes-list"></datalist>
+            </div>
+          </div>
+          {% if cfg.lat and cfg.lon %}
+          <div class="mb-3">
+            <small class="text-muted">
+              <i class="bi bi-geo-alt me-1"></i>
+              Coordonnées : {{ "%.4f"|format(cfg.lat) }}°N, {{ "%.4f"|format(cfg.lon) }}°E
+            </small>
+          </div>
+          {% endif %}
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-floppy-fill me-1"></i>Enregistrer le profil
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carte seuils -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="bi bi-sliders text-primary"></i>
+        <strong>Seuils de détection</strong>
+      </div>
+      <div class="card-body">
+        <form method="post" action="/reglages/seuils">
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">
+              Altitude minimale légale
+              <span class="badge bg-warning text-dark ms-1" id="alt-val">{{ cfg.alt_min_legale }} m</span>
+            </label>
+            <input type="range" class="form-range" name="alt_min_legale"
+                   id="alt-range" min="100" max="3000" step="50"
+                   value="{{ cfg.alt_min_legale }}"
+                   oninput="document.getElementById('alt-val').textContent = this.value + ' m'">
+            <div class="d-flex justify-content-between text-muted small">
+              <span>100 m</span><span>3 000 m</span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Rayon de surveillance</label>
+            <div class="input-group">
+              <input type="number" class="form-control" name="rayon_km"
+                     value="{{ cfg.rayon_km }}" min="1" max="50">
+              <span class="input-group-text">km</span>
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Plage horaire de nuit</label>
+            <div class="row g-2">
+              <div class="col-6">
+                <label class="form-label small text-muted">Début (heure)</label>
+                <select class="form-select" name="heure_nuit_deb">
+                  {% for h in range(18, 25) %}
+                    <option value="{{ h }}" {% if h == cfg.heure_nuit_deb %}selected{% endif %}>
+                      {{ "%02d"|format(h % 24) }}h00
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label small text-muted">Fin (heure)</label>
+                <select class="form-select" name="heure_nuit_fin">
+                  {% for h in range(0, 12) %}
+                    <option value="{{ h }}" {% if h == cfg.heure_nuit_fin %}selected{% endif %}>
+                      {{ "%02d"|format(h) }}h00
+                    </option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-text">
+              Infraction si heure ≥ {{ cfg.heure_nuit_deb }}h ou &lt; {{ cfg.heure_nuit_fin }}h
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-floppy-fill me-1"></i>Enregistrer les seuils
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+const cpInput    = document.getElementById('cp-input');
+const villeInput = document.getElementById('ville-input');
+const dl         = document.getElementById('communes-list');
+let   cpTimer    = null;
+
+cpInput.addEventListener('input', () => {
+  clearTimeout(cpTimer);
+  const cp = cpInput.value.trim();
+  if (cp.length !== 5) return;
+  cpTimer = setTimeout(() => {
+    fetch('/api/communes?cp=' + encodeURIComponent(cp))
+      .then(r => r.json())
+      .then(noms => {
+        dl.innerHTML = '';
+        noms.forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n;
+          dl.appendChild(opt);
+        });
+        if (noms.length === 1) villeInput.value = noms[0];
+      });
+  }, 400);
+});
+</script>
+{% endblock %}

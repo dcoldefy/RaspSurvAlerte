@@ -1,0 +1,209 @@
+/* ── Variables ──────────────────────────────────────────────────── */
+:root {
+  --navy:       #1a3a5c;
+  --navy-dark:  #122840;
+  --navy-light: #234d7a;
+  --red:        #dc3545;
+  --orange:     #fd7e14;
+  --blue-light: #0dcaf0;
+  --gray-bg:    #f4f6f9;
+}
+
+/* ── Global ─────────────────────────────────────────────────────── */
+body {
+  background: var(--gray-bg);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  font-size: 0.9rem;
+}
+
+.font-mono {
+  font-family: 'Consolas', 'Courier New', monospace;
+  letter-spacing: 0.03em;
+}
+
+/* ── Navbar ─────────────────────────────────────────────────────── */
+.navbar-main {
+  background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy) 100%);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  min-height: 54px;
+}
+
+.navbar-main .navbar-brand {
+  font-size: 1.1rem;
+  letter-spacing: 0.02em;
+}
+
+.navbar-main .nav-link {
+  border-radius: 6px;
+  padding: 0.3rem 0.8rem;
+  transition: background 0.15s;
+}
+
+.navbar-main .nav-link:hover,
+.navbar-main .nav-link.active {
+  background: rgba(255,255,255,0.12);
+}
+
+/* ── Status dot ─────────────────────────────────────────────────── */
+.status-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+.status-ok   { background: #28a745; box-shadow: 0 0 6px #28a74580; }
+.status-err  { background: #dc3545; box-shadow: 0 0 6px #dc354580; }
+.status-wait { background: #ffc107; }
+
+/* ── Stat cards ─────────────────────────────────────────────────── */
+.stat-card {
+  border-radius: 12px;
+  padding: 1rem 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  background: #fff;
+  border-left: 4px solid transparent;
+  min-height: 80px;
+}
+
+.stat-card-blue  { border-color: var(--navy); }
+.stat-card-red   { border-color: var(--red); }
+.stat-card-gray  { border-color: #adb5bd; }
+
+.stat-icon {
+  font-size: 1.6rem;
+  opacity: 0.65;
+  flex-shrink: 0;
+}
+
+.stat-card-blue .stat-icon  { color: var(--navy); }
+.stat-card-red  .stat-icon  { color: var(--red); }
+.stat-card-gray .stat-icon  { color: #6c757d; }
+
+.stat-value {
+  font-size: 1.7rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stat-value.small-val {
+  font-size: 1.15rem;
+}
+
+.stat-label {
+  font-size: 0.72rem;
+  color: #6c757d;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 2px;
+}
+
+/* ── Filtres ────────────────────────────────────────────────────── */
+.btn-filter {
+  background: #fff;
+  border: 1px solid #dee2e6;
+  color: #495057;
+  font-size: 0.82rem;
+  transition: all 0.15s;
+}
+
+.btn-filter:hover {
+  background: #e9ecef;
+}
+
+.btn-filter.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+/* ── Tableau ────────────────────────────────────────────────────── */
+.table-wrapper {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  overflow: auto;
+  max-height: calc(100vh - 320px);
+}
+
+.table-head-sticky th {
+  position: sticky;
+  top: 0;
+  background: var(--navy);
+  color: #fff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.6rem 0.75rem;
+  white-space: nowrap;
+  z-index: 2;
+  border: none;
+}
+
+#main-table tbody tr {
+  transition: background 0.1s;
+}
+
+#main-table tbody tr:hover {
+  filter: brightness(0.96);
+}
+
+/* Couleurs infractions */
+.row-double {
+  background-color: #fff0f0 !important;
+  border-left: 3px solid var(--red);
+}
+
+.row-alt {
+  background-color: #fffbf0 !important;
+  border-left: 3px solid var(--orange);
+}
+
+.row-nuit {
+  background-color: #f0f8ff !important;
+  border-left: 3px solid var(--blue-light);
+}
+
+.infr-text {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* ── Pied de page ───────────────────────────────────────────────── */
+.footer-bar {
+  background: #fff;
+  border-top: 1px solid #dee2e6;
+  font-size: 0.75rem;
+  margin-top: 1rem;
+}
+
+/* ── Cards réglages ─────────────────────────────────────────────── */
+.card-header {
+  background: #f8f9fa;
+  font-size: 0.9rem;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .table-wrapper {
+    max-height: 55vh;
+  }
+
+  /* Colonnes secondaires masquées sur mobile */
+  #main-table th:nth-child(4),
+  #main-table td:nth-child(4),
+  #main-table th:nth-child(7),
+  #main-table td:nth-child(7),
+  #main-table th:nth-child(8),
+  #main-table td:nth-child(8) {
+    display: none;
+  }
+
+  .stat-value {
+    font-size: 1.3rem;
+  }
+}

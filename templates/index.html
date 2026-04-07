@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — RaspSurAlert{% endblock %}
+
+{% block content %}
+
+<!-- Cartes stats -->
+<div class="row g-3 mb-3">
+
+  <div class="col-6 col-md-3">
+    <div class="stat-card stat-card-blue">
+      <div class="stat-icon"><i class="bi bi-database-fill"></i></div>
+      <div class="stat-body">
+        <div class="stat-value" id="s-total">{{ stats.total }}</div>
+        <div class="stat-label">Survols enregistrés</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3">
+    <div class="stat-card stat-card-red">
+      <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+      <div class="stat-body">
+        <div class="stat-value" id="s-infr">{{ stats.infractions }}</div>
+        <div class="stat-label">Infractions détectées</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3">
+    <div class="stat-card stat-card-gray">
+      <div class="stat-icon"><i class="bi bi-clock-history"></i></div>
+      <div class="stat-body">
+        <div class="stat-value small-val" id="s-last">
+          {% if stats.last_indicatif %}{{ stats.last_indicatif }}{% else %}—{% endif %}
+        </div>
+        <div class="stat-label">Dernier vol détecté</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-6 col-md-3">
+    <div class="stat-card stat-card-gray">
+      <div class="stat-icon"><i class="bi bi-geo-alt-fill"></i></div>
+      <div class="stat-body">
+        <div class="stat-value small-val">
+          {% if cfg.profil.ville %}{{ cfg.profil.ville }}{% else %}—{% endif %}
+        </div>
+        <div class="stat-label">Zone surveillée · {{ cfg.rayon_km }} km</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Filtres + bouton effacer -->
+<div class="d-flex flex-wrap align-items-center gap-2 mb-3">
+
+  <div class="btn-group btn-group-sm" role="group" id="filter-group">
+    <button type="button" class="btn btn-filter active" data-filter="tous">
+      Tous <span class="badge bg-secondary ms-1" id="badge-tous">{{ stats.total }}</span>
+    </button>
+    <button type="button" class="btn btn-filter" data-filter="ALT">
+      Altitude <span class="badge bg-warning text-dark ms-1" id="badge-alt">0</span>
+    </button>
+    <button type="button" class="btn btn-filter" data-filter="NUIT">
+      Nuit <span class="badge bg-info text-dark ms-1" id="badge-nuit">0</span>
+    </button>
+    <button type="button" class="btn btn-filter" data-filter="ALT+NUIT">
+      Double <span class="badge bg-danger ms-1" id="badge-double">0</span>
+    </button>
+  </div>
+
+  <span class="text-muted small ms-auto" id="refresh-hint">
+    <i class="bi bi-arrow-clockwise me-1"></i>Actualisation auto toutes les 30 s
+  </span>
+
+  <form method="post" action="/effacer"
+        onsubmit="return confirm('Supprimer tous les passages enregistrés ?')">
+    <button class="btn btn-sm btn-outline-danger">
+      <i class="bi bi-trash3 me-1"></i>Effacer
+    </button>
+  </form>
+
+</div>
+
+<!-- Tableau -->
+<div class="table-wrapper">
+  <table class="table table-hover table-sm align-middle mb-0" id="main-table">
+    <thead class="table-head-sticky">
+      <tr>
+        <th>Date</th>
+        <th>Heure</th>
+        <th>Indicatif</th>
+        <th>ICAO24</th>
+        <th class="text-end">Altitude</th>
+        <th class="text-end">Vitesse</th>
+        <th class="text-end">Cap</th>
+        <th>Pays</th>
+        <th>Infraction</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      {% for r in rows %}
+        {% set date, heure, ts, icao24, indicatif, alt_m, alt_geo, vitesse, cap, au_sol, pays, lat, lon, infraction = r %}
+        {% set code = get_code(infraction or '') %}
+        <tr class="{{ get_css_class(code) }}" data-code="{{ code }}">
+          <td class="text-nowrap text-muted small">{{ date }}</td>
+          <td class="text-nowrap fw-semibold">{{ heure }}</td>
+          <td class="fw-bold font-mono">{{ indicatif }}</td>
+          <td class="text-muted small font-mono">{{ icao24 }}</td>
+          <td class="text-end">{{ fmt_alt(alt_m) }}</td>
+          <td class="text-end">{{ fmt_val(vitesse, ' km/h') }}</td>
+          <td class="text-end">{{ fmt_val(cap, '°') }}</td>
+          <td class="small">{{ fmt_pays(pays) }}</td>
+          <td>
+            {{ get_badge(code) | safe }}
+            {% if infraction %}
+              <span class="infr-text small ms-1" title="{{ infraction }}">
+                {{ infraction[:60] }}{% if infraction|length > 60 %}…{% endif %}
+              </span>
+            {% endif %}
+          </td>
+        </tr>
+      {% else %}
+        <tr id="empty-row">
+          <td colspan="9" class="text-center text-muted py-5">
+            <i class="bi bi-radar fs-2 d-block mb-2 opacity-25"></i>
+            Aucun vol enregistré — le scanner démarre dans quelques instants
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+  window.RASPALERT = { activeFilter: 'tous' };
+</script>
+{% endblock %}
