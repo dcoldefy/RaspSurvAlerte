@@ -151,9 +151,10 @@ body {
 .table-head-sticky th.sort-active::after {
   content: attr(data-arrow);
   display: block;
-  font-size: 0.65em;
-  line-height: 1;
-  opacity: 0.8;
+  font-size: 0.9em;
+  line-height: 1.2;
+  text-align: center;
+  opacity: 0.9;
 }
 
 #main-table tbody tr {
