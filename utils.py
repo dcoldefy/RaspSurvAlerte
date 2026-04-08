@@ -70,3 +70,20 @@ def get_badge(code):
         "NUIT":     '<span class="badge bg-info text-dark">NUIT</span>',
     }
     return badges.get(code, "")
+
+
+def get_seuil_display(code, msg):
+    """Extrait un résumé court des seuils depuis le message d'infraction."""
+    import re
+    if not code or not msg:
+        return ""
+    parts = []
+    if "ALT" in code:
+        m = re.search(r'minimum legal de (\d+) m', msg)
+        if m:
+            parts.append(f"< {m.group(1)} m")
+    if "NUIT" in code:
+        m = re.search(r'\((\d+)h-(\d+)h\)', msg)
+        if m:
+            parts.append(f"{m.group(1)}h – {m.group(2)}h")
+    return " · ".join(parts)

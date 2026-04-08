@@ -8,7 +8,7 @@ import config
 from database import init_db, load_all, clear_db, get_stats
 from api import chercher_communes, chercher_coordonnees_commune
 from scanner import Scanner
-from utils import fmt_alt, fmt_val, fmt_pays, get_code, get_css_class, get_badge
+from utils import fmt_alt, fmt_val, fmt_pays, get_code, get_css_class, get_badge, get_seuil_display
 from pdf import generer_plainte_pdf_bytes
 
 # Destinataires disponibles pour la génération de plainte
@@ -53,6 +53,7 @@ app.jinja_env.globals.update(
     get_code=get_code,
     get_css_class=get_css_class,
     get_badge=get_badge,
+    get_seuil_display=get_seuil_display,
 )
 
 
@@ -95,6 +96,7 @@ def api_survols():
             "code":        code,
             "css_class":   get_css_class(code),
             "badge":       get_badge(code),
+            "seuil":       get_seuil_display(code, infraction or ""),
         })
     return jsonify(result)
 

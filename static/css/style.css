@@ -188,9 +188,18 @@ body {
   border-left: 4px solid #c0392b;
 }
 
-.infr-text {
-  color: #6c757d;
-  font-style: italic;
+.seuil-link {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #6c0000;
+  text-decoration: none;
+  border-bottom: 1px dashed #c0392b;
+  width: fit-content;
+}
+
+.seuil-link:hover {
+  color: #b30000;
+  border-bottom-style: solid;
 }
 
 /* Curseur sur les lignes en infraction */

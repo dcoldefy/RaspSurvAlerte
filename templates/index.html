@@ -116,8 +116,10 @@
           <td class="small">{{ fmt_pays(pays) }}</td>
           <td>
             {{ get_badge(code) | safe }}
-            {% if infraction %}
-              <span class="infr-text small d-block mt-1">{{ infraction }}</span>
+            {% set seuil = get_seuil_display(code, infraction or '') %}
+            {% if seuil %}
+              <a href="/reglages" class="seuil-link d-block mt-1"
+                 title="Cliquer pour modifier les seuils">{{ seuil }}</a>
             {% endif %}
           </td>
         </tr>

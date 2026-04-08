@@ -108,8 +108,9 @@ function updateTable() {
       }
 
       tbody.innerHTML = filtered.map(r => {
-        const infrText = r.infraction
-          ? `<span class="infr-text small d-block mt-1">${escHtml(r.infraction)}</span>`
+        const seuilLink = r.seuil
+          ? `<a href="/reglages" class="seuil-link d-block mt-1"
+                title="Cliquer pour modifier les seuils">${escHtml(r.seuil)}</a>`
           : '';
         return `
           <tr class="${escHtml(r.css_class)}" data-code="${escHtml(r.code)}"
@@ -123,7 +124,7 @@ function updateTable() {
             <td class="text-end">${fmtVal(r.vitesse_kmh, ' km/h')}</td>
             <td class="text-end">${fmtVal(r.cap_deg, '°')}</td>
             <td class="small">${escHtml(r.pays || '—')}</td>
-            <td>${r.badge}${infrText}</td>
+            <td>${r.badge}${seuilLink}</td>
           </tr>`;
       }).join('');
 
