@@ -109,9 +109,7 @@ function updateTable() {
 
       tbody.innerHTML = filtered.map(r => {
         const infrText = r.infraction
-          ? `<span class="infr-text small ms-1" title="${escHtml(r.infraction)}">
-               ${escHtml(r.infraction.substring(0, 60))}${r.infraction.length > 60 ? '…' : ''}
-             </span>`
+          ? `<span class="infr-text small d-block mt-1">${escHtml(r.infraction)}</span>`
           : '';
         return `
           <tr class="${escHtml(r.css_class)}" data-code="${escHtml(r.code)}"

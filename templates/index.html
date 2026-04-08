@@ -117,9 +117,7 @@
           <td>
             {{ get_badge(code) | safe }}
             {% if infraction %}
-              <span class="infr-text small ms-1" title="{{ infraction }}">
-                {{ infraction[:60] }}{% if infraction|length > 60 %}…{% endif %}
-              </span>
+              <span class="infr-text small d-block mt-1">{{ infraction }}</span>
             {% endif %}
           </td>
         </tr>

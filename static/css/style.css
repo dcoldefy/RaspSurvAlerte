@@ -166,19 +166,25 @@ body {
   filter: brightness(0.96);
 }
 
-/* Couleurs infractions — toutes les lignes en infraction passent au rouge */
-.row-double {
+/* Couleurs infractions — ciblage sur td pour compatibilité Bootstrap 5 */
+.row-double td {
   background-color: #ffc5c5 !important;
+}
+.row-double td:first-child {
   border-left: 4px solid #b30000;
 }
 
-.row-alt {
+.row-alt td {
   background-color: #ffd5b0 !important;
+}
+.row-alt td:first-child {
   border-left: 4px solid var(--orange);
 }
 
-.row-nuit {
+.row-nuit td {
   background-color: #ffd0d8 !important;
+}
+.row-nuit td:first-child {
   border-left: 4px solid #c0392b;
 }
 
