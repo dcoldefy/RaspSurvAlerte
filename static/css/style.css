@@ -315,9 +315,11 @@ body {
   font-size: 0.9rem;
 }
 
-/* Colonnes masquées : ICAO24, Cap, Pays */
+/* Colonnes masquées : ICAO24, Vitesse, Cap, Pays */
 #main-table th:nth-child(4),
 #main-table td:nth-child(4),
+#main-table th:nth-child(6),
+#main-table td:nth-child(6),
 #main-table th:nth-child(7),
 #main-table td:nth-child(7),
 #main-table th:nth-child(8),
