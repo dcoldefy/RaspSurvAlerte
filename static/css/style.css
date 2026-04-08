@@ -328,22 +328,23 @@ body {
 }
 
 /* Largeurs colonnes visibles — % + garde-fou min-width */
-#main-table th:nth-child(1) { width: 14%; min-width:  90px; } /* Date      */
-#main-table th:nth-child(2) { width: 10%; min-width:  70px; } /* Heure     */
-#main-table th:nth-child(3) { width: 16%; min-width: 100px; } /* Indicatif */
-#main-table th:nth-child(5) { width: 12%; min-width:  80px; } /* Altitude  */
-/* col 9 Infraction : prend l'espace restant (~48%) */
-#main-table th:nth-child(9) { min-width: 150px; }
+#main-table th:nth-child(1)  { width: 13%; min-width:  90px; } /* Date      */
+#main-table th:nth-child(2)  { width:  9%; min-width:  70px; } /* Heure     */
+#main-table th:nth-child(3)  { width: 14%; min-width: 100px; } /* Indicatif */
+#main-table th:nth-child(5)  { width: 11%; min-width:  80px; } /* Altitude  */
+#main-table th:nth-child(6)  { width: 11%; min-width:  80px; } /* Distance  */
+/* col 10 Infraction : prend l'espace restant (~42%) */
+#main-table th:nth-child(10) { min-width: 150px; }
 
 /* Colonnes masquées : ICAO24, Vitesse, Cap, Pays */
 #main-table th:nth-child(4),
 #main-table td:nth-child(4),
-#main-table th:nth-child(6),
-#main-table td:nth-child(6),
 #main-table th:nth-child(7),
 #main-table td:nth-child(7),
 #main-table th:nth-child(8),
-#main-table td:nth-child(8) {
+#main-table td:nth-child(8),
+#main-table th:nth-child(9),
+#main-table td:nth-child(9) {
   display: none;
 }
 

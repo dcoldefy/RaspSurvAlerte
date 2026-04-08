@@ -17,6 +17,10 @@ def distance_km(lat1, lon1, lat2, lon2):
     return R * 2 * math.asin(math.sqrt(a))
 
 
+def fmt_dist(d):
+    return f"{d:.1f} km" if d is not None else "—"
+
+
 def fmt_alt(alt):
     return f"{alt:,} m".replace(",", "\u202f") if alt is not None else "-"
 

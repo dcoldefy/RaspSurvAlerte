@@ -8,7 +8,7 @@ import config
 from database import init_db, load_all, clear_db, get_stats
 from api import chercher_communes, chercher_coordonnees_commune
 from scanner import Scanner
-from utils import fmt_alt, fmt_val, fmt_pays, get_code, get_css_class, get_badge, get_seuil_display
+from utils import fmt_alt, fmt_val, fmt_dist, fmt_pays, get_code, get_css_class, get_badge, get_seuil_display, distance_km
 from pdf import generer_plainte_pdf_bytes
 
 # Destinataires disponibles pour la génération de plainte
@@ -52,11 +52,13 @@ scanner = Scanner()
 app.jinja_env.globals.update(
     fmt_alt=fmt_alt,
     fmt_val=fmt_val,
+    fmt_dist=fmt_dist,
     fmt_pays=fmt_pays,
     get_code=get_code,
     get_css_class=get_css_class,
     get_badge=get_badge,
     get_seuil_display=get_seuil_display,
+    distance_km=distance_km,
 )
 
 
@@ -82,16 +84,21 @@ def reglages():
 
 @app.route("/api/survols")
 def api_survols():
-    rows   = load_all()
-    result = []
+    rows     = load_all()
+    cfg_data = config.load()
+    cfg_lat  = cfg_data.get("lat")
+    cfg_lon  = cfg_data.get("lon")
+    result   = []
     for r in rows:
         (date, heure, ts, icao24, indicatif, alt_m, alt_geo,
          vitesse, cap, au_sol, pays, lat, lon, infraction) = r
         code = get_code(infraction or "")
+        dist = distance_km(cfg_lat, cfg_lon, lat, lon)
         result.append({
             "date": date, "heure": heure, "icao24": icao24,
             "indicatif":   indicatif,
             "altitude_m":  alt_m,
+            "distance_km": round(dist, 1) if dist is not None else None,
             "vitesse_kmh": vitesse,
             "cap_deg":     cap,
             "pays":        pays,

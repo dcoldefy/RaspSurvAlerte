@@ -99,7 +99,7 @@ function updateTable() {
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" class="text-center text-muted py-5">
+            <td colspan="10" class="text-center text-muted py-5">
               <i class="bi bi-radar fs-2 d-block mb-2 opacity-25"></i>
               Aucun vol correspondant au filtre actuel
             </td>
@@ -117,6 +117,7 @@ function updateTable() {
             <td class="fw-bold font-mono">${escHtml(r.indicatif)}</td>
             <td class="text-muted small font-mono">${escHtml(r.icao24)}</td>
             <td class="text-end">${fmtAlt(r.altitude_m)}</td>
+            <td class="text-end">${fmtDist(r.distance_km)}</td>
             <td class="text-end">${fmtVal(r.vitesse_kmh, ' km/h')}</td>
             <td class="text-end">${fmtVal(r.cap_deg, '°')}</td>
             <td class="small">${escHtml(r.pays || '—')}</td>
@@ -160,6 +161,10 @@ function escHtml(s) {
 
 function fmtAlt(v) {
   return v != null ? v.toLocaleString('fr-FR') + '\u202fm' : '—';
+}
+
+function fmtDist(v) {
+  return v != null ? v.toLocaleString('fr-FR') + '\u202fkm' : '—';
 }
 
 function fmtVal(v, suffix) {
