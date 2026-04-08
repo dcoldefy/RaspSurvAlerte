@@ -40,6 +40,7 @@ DESTINATAIRES = [
 ]
 
 import time as _time
+import time
 app     = Flask(__name__)
 app.jinja_env.globals['css_version'] = int(_time.time())
 init_db()   # garantit que la table existe avant toute requête HTTP
@@ -117,6 +118,24 @@ def api_status():
         "last_scan": st["last_scan"],
         "n_infr":    st["n_infr"],
     })
+
+
+@app.route("/api/stream")
+def api_stream():
+    """SSE — notifie le client dès que le scanner termine un nouveau scan."""
+    def generate():
+        last_count = -1
+        while True:
+            state = scanner.get_state()
+            count = state.get("scan_count", 0)
+            if count != last_count:
+                last_count = count
+                yield "data: update\n\n"
+            else:
+                yield "data: ping\n\n"
+            time.sleep(2)
+    return Response(generate(), mimetype="text/event-stream",
+                    headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
 
 @app.route("/api/communes")

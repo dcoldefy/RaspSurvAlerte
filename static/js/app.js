@@ -355,6 +355,21 @@ document.addEventListener('DOMContentLoaded', () => {
   updateStatus();
   updateTable();
 
+  // SSE — mise à jour instantanée dès qu'un scan se termine
+  const evtSource = new EventSource('/api/stream');
+  evtSource.onmessage = e => {
+    if (e.data === 'update') {
+      updateTable();
+      updateStatus();
+    }
+  };
+  // Fallback polling en cas de coupure SSE
+  evtSource.onerror = () => {
+    evtSource.close();
+    setInterval(updateStatus, 15000);
+    setInterval(updateTable,  30000);
+  };
+
+  // Keepalive status toutes les 15s (SSE ne couvre pas le statut du scanner)
   setInterval(updateStatus, 15000);
-  setInterval(updateTable,  30000);
 });
