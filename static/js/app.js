@@ -114,7 +114,9 @@ function updateTable() {
              </span>`
           : '';
         return `
-          <tr class="${escHtml(r.css_class)}" data-code="${escHtml(r.code)}">
+          <tr class="${escHtml(r.css_class)}" data-code="${escHtml(r.code)}"
+              data-date="${escHtml(r.date)}" data-heure="${escHtml(r.heure)}"
+              data-indicatif="${escHtml(r.indicatif)}" data-icao24="${escHtml(r.icao24)}">
             <td class="text-nowrap text-muted small">${escHtml(r.date)}</td>
             <td class="text-nowrap fw-semibold">${escHtml(r.heure)}</td>
             <td class="fw-bold font-mono">${escHtml(r.indicatif)}</td>
@@ -159,7 +161,164 @@ function pad(n) {
   return String(n).padStart(2, '0');
 }
 
+/* ── Menu contextuel (clic droit) ─────────────────────────────────────── */
+
+let ctxMenu    = null;
+let modalEl    = null;
+let ctxVolData = null;   // données du vol en cours
+let destinataires = [];  // liste chargée depuis l'API
+let selectedDest  = 0;
+
+function hideCtxMenu() {
+  if (ctxMenu) ctxMenu.style.display = 'none';
+}
+
+function showCtxMenu(e, tr) {
+  if (!ctxMenu) return;
+  const code = tr.dataset.code || '';
+  if (!code) return;
+
+  ctxVolData = {
+    date:      tr.dataset.date      || '',
+    heure:     tr.dataset.heure     || '',
+    indicatif: tr.dataset.indicatif || '',
+    icao24:    tr.dataset.icao24    || '',
+  };
+
+  const ref = ctxVolData.indicatif || ctxVolData.icao24 || '—';
+  document.getElementById('ctx-vol-ref').textContent = ref;
+
+  // Positionner le menu
+  const x = Math.min(e.clientX, window.innerWidth  - 240);
+  const y = Math.min(e.clientY, window.innerHeight - 120);
+  ctxMenu.style.left    = x + 'px';
+  ctxMenu.style.top     = y + 'px';
+  ctxMenu.style.display = 'block';
+  e.preventDefault();
+}
+
+function loadDestinataireList() {
+  fetch('/api/destinataires')
+    .then(r => r.json())
+    .then(data => {
+      destinataires = data;
+      renderDestinataireRadios();
+    })
+    .catch(() => {
+      document.getElementById('dest-radio-list').innerHTML =
+        '<div class="text-danger small">Erreur de chargement.</div>';
+    });
+}
+
+function renderDestinataireRadios() {
+  const container = document.getElementById('dest-radio-list');
+  if (!container) return;
+  container.innerHTML = destinataires.map((d, i) => `
+    <div class="form-check mb-2">
+      <input class="form-check-input" type="radio" name="dest-radio"
+             id="dest-${i}" value="${i}" ${i === selectedDest ? 'checked' : ''}>
+      <label class="form-check-label" for="dest-${i}">
+        <span class="fw-semibold">${escHtml(d.label)}</span><br>
+        <span class="text-muted small">${escHtml(d.nom)} — ${escHtml(d.cp_ville)}</span>
+      </label>
+    </div>`).join('');
+
+  container.querySelectorAll('input[name="dest-radio"]').forEach(rb => {
+    rb.addEventListener('change', () => {
+      selectedDest = parseInt(rb.value, 10);
+      updateDestApercu();
+    });
+  });
+  updateDestApercu();
+}
+
+function updateDestApercu() {
+  const apercu = document.getElementById('dest-apercu');
+  if (!apercu || !destinataires[selectedDest]) return;
+  const d = destinataires[selectedDest];
+  apercu.textContent = `${d.nom}  ·  ${d.adresse}  ·  ${d.cp_ville}`;
+  apercu.style.display = 'block';
+}
+
+function genererPlainte() {
+  if (!ctxVolData) return;
+  const btn = document.getElementById('btn-gen-plainte');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Génération…';
+
+  fetch('/api/plainte', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ vol: ctxVolData, destinataire_idx: selectedDest }),
+  })
+    .then(r => {
+      if (!r.ok) return r.json().then(j => { throw new Error(j.error || 'Erreur serveur'); });
+      return r.blob();
+    })
+    .then(blob => {
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      const ref  = (ctxVolData.indicatif || ctxVolData.icao24 || 'plainte').trim();
+      const date = (ctxVolData.date || '').replace(/\//g, '');
+      a.href     = url;
+      a.download = `Plainte_${ref}_${date}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      bootstrap.Modal.getInstance(modalEl)?.hide();
+    })
+    .catch(err => {
+      alert('Erreur : ' + err.message);
+    })
+    .finally(() => {
+      btn.disabled = false;
+      btn.innerHTML = '<i class="bi bi-download me-1"></i>Télécharger le PDF';
+    });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  ctxMenu = document.getElementById('ctx-menu');
+  modalEl = document.getElementById('modal-destinataire');
+
+  // Initialisation menu contextuel
+  if (ctxMenu) {
+    document.addEventListener('click', hideCtxMenu);
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') hideCtxMenu(); });
+
+    document.getElementById('ctx-fr24')?.addEventListener('click', () => {
+      if (!ctxVolData) return;
+      hideCtxMenu();
+      const indicatif = ctxVolData.indicatif?.trim();
+      const icao24    = ctxVolData.icao24?.trim().toLowerCase();
+      let url;
+      if (indicatif && indicatif !== '-') {
+        url = `https://www.flightradar24.com/${encodeURIComponent(indicatif)}`;
+      } else if (icao24) {
+        url = `https://www.flightradar24.com/data/aircraft/${encodeURIComponent(icao24)}`;
+      } else {
+        url = 'https://www.flightradar24.com/';
+      }
+      window.open(url, '_blank', 'noopener');
+    });
+
+    document.getElementById('ctx-plainte')?.addEventListener('click', () => {
+      hideCtxMenu();
+      loadDestinataireList();
+      new bootstrap.Modal(modalEl).show();
+    });
+  }
+
+  if (modalEl) {
+    document.getElementById('btn-gen-plainte')?.addEventListener('click', genererPlainte);
+  }
+
+  // Délégation clic droit sur le tbody
+  document.getElementById('table-body')?.addEventListener('contextmenu', e => {
+    const tr = e.target.closest('tr[data-code]');
+    if (tr && tr.dataset.code) showCtxMenu(e, tr);
+  });
+
   document.querySelectorAll('.btn-filter').forEach(btn => {
     btn.addEventListener('click', () => {
       document.querySelectorAll('.btn-filter').forEach(b => b.classList.remove('active'));
