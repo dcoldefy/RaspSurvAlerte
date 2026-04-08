@@ -120,7 +120,7 @@ function updateTable() {
             <td class="text-end">${fmtVal(r.vitesse_kmh, ' km/h')}</td>
             <td class="text-end">${fmtVal(r.cap_deg, '°')}</td>
             <td class="small">${escHtml(r.pays || '—')}</td>
-            <td>${r.badge}</td>
+            <td>${r.badge}${buildInfrDetail(r)}</td>
           </tr>`;
       }).join('');
 
@@ -135,6 +135,20 @@ function updateTable() {
       const hint = document.getElementById('refresh-hint');
       if (hint) hint.innerHTML = '<i class="bi bi-wifi-off text-danger me-1"></i>Erreur réseau';
     });
+}
+
+function buildInfrDetail(r) {
+  if (!r.code) return '';
+  const parts = [];
+  if (r.code === 'ALT' || r.code === 'ALT+NUIT') {
+    parts.push(r.altitude_m != null ? fmtAlt(r.altitude_m) : '—');
+  }
+  if (r.code === 'NUIT' || r.code === 'ALT+NUIT') {
+    parts.push(r.heure ? r.heure.substring(0, 5) : '—');
+  }
+  return parts.length
+    ? ` <span class="infr-vals">${parts.join(' · ')}</span>`
+    : '';
 }
 
 function escHtml(s) {

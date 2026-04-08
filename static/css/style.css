@@ -188,6 +188,13 @@ body {
   border-left: 4px solid #c0392b;
 }
 
+.infr-vals {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #7a0000;
+  margin-left: 4px;
+}
+
 .seuil-card-link {
   display: block;
   margin-top: 4px;

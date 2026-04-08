@@ -117,7 +117,16 @@
           <td class="text-end">{{ fmt_val(vitesse, ' km/h') }}</td>
           <td class="text-end">{{ fmt_val(cap, '°') }}</td>
           <td class="small">{{ fmt_pays(pays) }}</td>
-          <td>{{ get_badge(code) | safe }}</td>
+          <td>
+            {{ get_badge(code) | safe }}
+            {% if code %}
+              <span class="infr-vals">
+                {%- if 'ALT' in code %}{{ fmt_alt(alt_m) }}{% endif %}
+                {%- if code == 'ALT+NUIT' %} · {% endif %}
+                {%- if 'NUIT' in code %}{{ heure[:5] }}{% endif %}
+              </span>
+            {% endif %}
+          </td>
         </tr>
       {% else %}
         <tr id="empty-row">
