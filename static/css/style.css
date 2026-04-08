@@ -210,7 +210,7 @@ body {
 }
 
 .seuil-card-link {
-  display: block;
+  display: none;
   margin-top: 4px;
   font-size: 0.72rem;
   font-weight: 600;
@@ -223,6 +223,10 @@ body {
 .seuil-card-link:hover {
   color: #700;
   border-bottom-style: solid;
+}
+
+@media (min-width: 1200px) {
+  .seuil-card-link { display: block; }
 }
 
 /* Curseur sur les lignes en infraction */
