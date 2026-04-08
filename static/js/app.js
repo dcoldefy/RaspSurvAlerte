@@ -185,7 +185,6 @@ function hideCtxMenu() {
 function showCtxMenu(e, tr) {
   if (!ctxMenu) return;
   const code = tr.dataset.code || '';
-  if (!code) return;
 
   ctxVolData = {
     date:      tr.dataset.date      || '',
@@ -196,6 +195,12 @@ function showCtxMenu(e, tr) {
 
   const ref = ctxVolData.indicatif || ctxVolData.icao24 || '—';
   document.getElementById('ctx-vol-ref').textContent = ref;
+
+  // Afficher/masquer l'option Plainte selon infraction
+  const ctxPlainte = document.getElementById('ctx-plainte');
+  const ctxSep     = ctxMenu.querySelector('.ctx-sep');
+  if (ctxPlainte) ctxPlainte.style.display = code ? '' : 'none';
+  if (ctxSep)     ctxSep.style.display     = code ? '' : 'none';
 
   // Positionner le menu
   const x = Math.min(e.clientX, window.innerWidth  - 240);
@@ -322,10 +327,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('btn-gen-plainte')?.addEventListener('click', genererPlainte);
   }
 
-  // Délégation clic droit sur le tbody
+  // Délégation clic droit sur le tbody (toutes les lignes de vol)
   document.getElementById('table-body')?.addEventListener('contextmenu', e => {
-    const tr = e.target.closest('tr[data-code]');
-    if (tr && tr.dataset.code) showCtxMenu(e, tr);
+    const tr = e.target.closest('tr[data-date]');
+    if (tr) showCtxMenu(e, tr);
   });
 
   document.querySelectorAll('.btn-filter').forEach(btn => {

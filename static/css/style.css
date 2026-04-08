@@ -243,8 +243,8 @@ body {
   .seuil-card-link { display: block; }
 }
 
-/* Curseur sur les lignes en infraction */
-#main-table tbody tr[data-code]:not([data-code=""]) {
+/* Curseur sur toutes les lignes de vol (clic droit disponible) */
+#main-table tbody tr[data-date] {
   cursor: context-menu;
 }
 
