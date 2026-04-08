@@ -56,17 +56,17 @@ body {
 .status-err  { background: #dc3545; box-shadow: 0 0 6px #dc354580; }
 .status-wait { background: #ffc107; }
 
-/* ── Stat cards ─────────────────────────────────────────────────── */
+/* ── Stat cards — mobile-first (compact par défaut) ─────────────── */
 .stat-card {
-  border-radius: 12px;
-  padding: 1rem 1.1rem;
+  border-radius: 8px;
+  padding: 0.3rem 0.5rem;
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.4rem;
   box-shadow: 0 1px 4px rgba(0,0,0,0.08);
   background: #fff;
   border-left: 4px solid transparent;
-  min-height: 80px;
+  min-height: 0;
 }
 
 .stat-card-blue  { border-color: var(--navy); }
@@ -74,7 +74,7 @@ body {
 .stat-card-gray  { border-color: #adb5bd; }
 
 .stat-icon {
-  font-size: 1.6rem;
+  font-size: 1rem;
   opacity: 0.65;
   flex-shrink: 0;
 }
@@ -84,21 +84,35 @@ body {
 .stat-card-gray .stat-icon  { color: #6c757d; }
 
 .stat-value {
-  font-size: 1.7rem;
+  font-size: 1.1rem;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1;
 }
 
 .stat-value.small-val {
-  font-size: 1.15rem;
+  font-size: 0.85rem;
 }
 
 .stat-label {
-  font-size: 0.72rem;
+  font-size: 0.62rem;
   color: #6c757d;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  margin-top: 2px;
+  margin-top: 1px;
+}
+
+/* Stat cards plus grandes sur écran large */
+@media (min-width: 768px) {
+  .stat-card {
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+    gap: 1rem;
+    min-height: 80px;
+  }
+  .stat-icon       { font-size: 1.6rem; }
+  .stat-value      { font-size: 1.7rem; line-height: 1.1; }
+  .stat-value.small-val { font-size: 1.15rem; }
+  .stat-label      { font-size: 0.72rem; margin-top: 2px; }
 }
 
 /* ── Filtres ────────────────────────────────────────────────────── */
@@ -295,48 +309,11 @@ body {
     max-height: 55vh;
   }
 
-  /* Stat cards compactes sur mobile */
-  .row.g-3 { --bs-gutter-y: 0.4rem !important; --bs-gutter-x: 0.4rem !important; }
-
-  .stat-card {
-    padding: 0.3rem 0.5rem !important;
-    min-height: 0 !important;
-    gap: 0.4rem !important;
-    border-radius: 6px !important;
-  }
-
-  .stat-icon {
-    font-size: 0.9rem !important;
-  }
-
-  .stat-value {
-    font-size: 1rem !important;
-    line-height: 1 !important;
-  }
-
-  .stat-value.small-val {
-    font-size: 0.8rem !important;
-  }
-
-  .stat-label {
-    font-size: 0.58rem !important;
-    margin-top: 1px !important;
-  }
-
-  .seuil-card-link {
-    font-size: 0.56rem !important;
-    margin-top: 1px !important;
-  }
-
   /* Colonnes secondaires masquées sur mobile */
   #main-table th:nth-child(7),
   #main-table td:nth-child(7),
   #main-table th:nth-child(8),
   #main-table td:nth-child(8) {
     display: none;
-  }
-
-  .stat-value {
-    font-size: 1.3rem;
   }
 }
