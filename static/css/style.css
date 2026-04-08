@@ -283,6 +283,12 @@ body {
   font-size: 0.9rem;
 }
 
+/* Colonne ICAO24 masquée */
+#main-table th:nth-child(4),
+#main-table td:nth-child(4) {
+  display: none;
+}
+
 /* ── Responsive ─────────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .table-wrapper {
@@ -290,8 +296,6 @@ body {
   }
 
   /* Colonnes secondaires masquées sur mobile */
-  #main-table th:nth-child(4),
-  #main-table td:nth-child(4),
   #main-table th:nth-child(7),
   #main-table td:nth-child(7),
   #main-table th:nth-child(8),
