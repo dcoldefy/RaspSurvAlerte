@@ -6,7 +6,7 @@
 
 const SORT = { col: null, dir: 1 }; // dir : 1=asc, -1=desc
 
-const NUM_COLS = new Set(['altitude_m', 'vitesse_kmh', 'cap_deg']);
+const NUM_COLS = new Set(['altitude_m', 'distance_km', 'vitesse_kmh', 'cap_deg']);
 
 function sortRows(rows) {
   if (!SORT.col) return rows;
