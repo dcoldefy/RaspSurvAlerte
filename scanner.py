@@ -46,7 +46,6 @@ class Scanner:
     def _do_scan(self):
         cfg = config.load()
         with self.lock:
-            self.state["scan_count"] += 1
             self.state["status"]    = "Scan en cours..."
             self.state["status_ok"] = True
 
@@ -144,6 +143,7 @@ class Scanner:
                 self.state["filtres"]    = filtres
                 self.state["n_infr"]     = n_infr
                 self.state["status_ok"]  = True
+                self.state["scan_count"] += 1
                 sc = self.state["scan_count"]
                 infr_txt = f" · ⚠ {n_infr} infraction(s)" if n_infr else ""
                 self.state["status"] = (
