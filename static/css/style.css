@@ -315,9 +315,13 @@ body {
   font-size: 0.9rem;
 }
 
-/* Colonne ICAO24 masquée */
+/* Colonnes masquées : ICAO24, Cap, Pays */
 #main-table th:nth-child(4),
-#main-table td:nth-child(4) {
+#main-table td:nth-child(4),
+#main-table th:nth-child(7),
+#main-table td:nth-child(7),
+#main-table th:nth-child(8),
+#main-table td:nth-child(8) {
   display: none;
 }
 
@@ -327,11 +331,4 @@ body {
     max-height: 55vh;
   }
 
-  /* Colonnes secondaires masquées sur mobile */
-  #main-table th:nth-child(7),
-  #main-table td:nth-child(7),
-  #main-table th:nth-child(8),
-  #main-table td:nth-child(8) {
-    display: none;
-  }
 }
