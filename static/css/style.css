@@ -209,6 +209,20 @@ body {
   margin-left: 4px;
 }
 
+.stat-card-link {
+  text-decoration: none;
+  display: block;
+}
+
+.stat-card-clickable {
+  cursor: pointer;
+  transition: filter 0.15s;
+}
+
+.stat-card-clickable:hover {
+  filter: brightness(0.95);
+}
+
 .seuil-card-link {
   display: none;
   margin-top: 4px;

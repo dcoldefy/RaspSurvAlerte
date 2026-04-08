@@ -17,16 +17,18 @@
   </div>
 
   <div class="col-6 col-md-3">
-    <div class="stat-card stat-card-red">
+    <a href="/reglages" class="stat-card-link">
+    <div class="stat-card stat-card-red stat-card-clickable">
       <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
       <div class="stat-body">
         <div class="stat-value" id="s-infr">{{ stats.infractions }}</div>
         <div class="stat-label">Infractions détectées</div>
-        <a href="/reglages" class="seuil-card-link" title="Modifier les seuils">
+        <span class="seuil-card-link">
           Réglages actuels : altitude {{ cfg.alt_min_legale }} m et vol nocturne : {{ cfg.heure_nuit_deb }}h – {{ cfg.heure_nuit_fin }}h
-        </a>
+        </span>
       </div>
     </div>
+    </a>
   </div>
 
   <div class="col-6 col-md-3">
@@ -42,7 +44,8 @@
   </div>
 
   <div class="col-6 col-md-3">
-    <div class="stat-card stat-card-gray">
+    <a href="/reglages" class="stat-card-link">
+    <div class="stat-card stat-card-gray stat-card-clickable">
       <div class="stat-icon"><i class="bi bi-geo-alt-fill"></i></div>
       <div class="stat-body">
         <div class="stat-value small-val">
@@ -51,6 +54,7 @@
         <div class="stat-label">Zone surveillée · {{ cfg.rayon_km }} km</div>
       </div>
     </div>
+    </a>
   </div>
 
 </div>
