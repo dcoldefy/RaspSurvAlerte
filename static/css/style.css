@@ -295,6 +295,34 @@ body {
     max-height: 55vh;
   }
 
+  /* Stat cards compactes sur mobile */
+  .stat-card {
+    padding: 0.35rem 0.6rem;
+    min-height: 0;
+    gap: 0.5rem;
+    border-radius: 8px;
+  }
+
+  .stat-icon {
+    font-size: 1rem;
+  }
+
+  .stat-value {
+    font-size: 1.1rem;
+  }
+
+  .stat-value.small-val {
+    font-size: 0.85rem;
+  }
+
+  .stat-label {
+    font-size: 0.62rem;
+  }
+
+  .seuil-card-link {
+    font-size: 0.6rem;
+  }
+
   /* Colonnes secondaires masquées sur mobile */
   #main-table th:nth-child(7),
   #main-table td:nth-child(7),
