@@ -39,7 +39,9 @@ DESTINATAIRES = [
     },
 ]
 
+import time as _time
 app     = Flask(__name__)
+app.jinja_env.globals['css_version'] = int(_time.time())
 init_db()   # garantit que la table existe avant toute requête HTTP
 scanner = Scanner()
 
