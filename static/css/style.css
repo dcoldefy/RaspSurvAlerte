@@ -102,7 +102,7 @@ body {
 }
 
 /* Stat cards plus grandes sur écran large */
-@media (min-width: 768px) {
+@media (min-width: 1200px) {
   .stat-card {
     border-radius: 12px;
     padding: 1rem 1.1rem;
