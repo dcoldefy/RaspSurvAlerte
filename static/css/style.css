@@ -54,6 +54,7 @@ body {
 }
 .status-ok   { background: #28a745; box-shadow: 0 0 6px #28a74580; }
 .status-err  { background: #dc3545; box-shadow: 0 0 6px #dc354580; }
+.status-warn { background: #fd7e14; box-shadow: 0 0 6px #fd7e1480; }
 .status-wait { background: #ffc107; }
 
 /* ── Stat cards — mobile-first (compact par défaut) ─────────────── */

@@ -28,6 +28,9 @@ class Scanner:
             "frozen":              0,
             "filtres":             0,
             "n_infr":              0,
+            "error_count":         0,
+            "error_since":         None,
+            "last_error_type":     None,
         }
         self._stop = threading.Event()
 
@@ -146,15 +149,39 @@ class Scanner:
                 self.state["scan_count"] += 1
                 sc = self.state["scan_count"]
                 infr_txt = f" · ⚠ {n_infr} infraction(s)" if n_infr else ""
+
+                # Résumé de l'interruption précédente si applicable
+                recovery_txt = ""
+                if self.state["error_count"] > 0:
+                    n_missed  = self.state["error_count"]
+                    err_since = self.state["error_since"]
+                    duree_min = int((now - err_since).total_seconds() / 60) if err_since else 0
+                    label = "limite de requêtes" if self.state["last_error_type"] == "rate_limit" else "erreur réseau"
+                    recovery_txt = f" · ⚠ Reprise après {n_missed} scan(s) manqué(s) ({duree_min} min — {label})"
+                    self.state["error_count"]     = 0
+                    self.state["error_since"]     = None
+                    self.state["last_error_type"] = None
+
                 self.state["status"] = (
                     f"Scan #{sc} à {time_s} · {added} nouveau(x) · "
                     f"{updated} mis à jour · {frozen} figé(s) · {filtres} filtré(s)"
-                    + infr_txt)
+                    + infr_txt + recovery_txt)
 
         except Exception as e:
+            import requests as _req
+            if isinstance(e, _req.exceptions.HTTPError) and e.response is not None and e.response.status_code == 429:
+                err_type = "rate_limit"
+                err_msg  = "Trop de requêtes OpenSky (429) — scan ignoré"
+            else:
+                err_type = "error"
+                err_msg  = f"Erreur scan : {e}"
             with self.lock:
-                self.state["status"]    = f"Erreur scan : {e}"
-                self.state["status_ok"] = False
+                if self.state["error_count"] == 0:
+                    self.state["error_since"] = datetime.now()
+                self.state["error_count"]    += 1
+                self.state["last_error_type"] = err_type
+                self.state["status"]          = err_msg
+                self.state["status_ok"]       = False
 
     def get_state(self):
         with self.lock:

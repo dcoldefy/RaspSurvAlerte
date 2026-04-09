@@ -48,7 +48,11 @@ function updateStatus() {
       const dot  = document.getElementById('status-dot');
       const text = document.getElementById('status-text');
       if (!dot || !text) return;
-      dot.className    = 'status-dot ' + (data.status_ok ? 'status-ok' : 'status-err');
+      let dotClass = 'status-ok';
+      if (!data.status_ok) {
+        dotClass = data.last_error_type === 'rate_limit' ? 'status-warn' : 'status-err';
+      }
+      dot.className    = 'status-dot ' + dotClass;
       text.textContent = data.status;
     })
     .catch(() => {

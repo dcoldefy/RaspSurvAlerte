@@ -120,10 +120,12 @@ def api_stats():
 def api_status():
     st = scanner.get_state()
     return jsonify({
-        "status":    st["status"],
-        "status_ok": st["status_ok"],
-        "last_scan": st["last_scan"],
-        "n_infr":    st["n_infr"],
+        "status":          st["status"],
+        "status_ok":       st["status_ok"],
+        "last_scan":       st["last_scan"],
+        "n_infr":          st["n_infr"],
+        "error_count":     st["error_count"],
+        "last_error_type": st["last_error_type"],
     })
 
 
