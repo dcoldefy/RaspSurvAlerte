@@ -17,6 +17,7 @@ def init_db():
         altitude_m INTEGER, altitude_geo INTEGER,
         vitesse_kmh INTEGER, cap_deg INTEGER,
         au_sol INTEGER, pays TEXT, lat REAL, lon REAL, infraction TEXT)""")
+    c.execute("CREATE INDEX IF NOT EXISTS idx_ts ON survols(timestamp)")
     conn.commit()
     conn.close()
 

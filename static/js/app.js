@@ -81,7 +81,7 @@ function updateTable() {
       if (sTotal) sTotal.textContent = rows.length;
       if (sInfr)  sInfr.textContent  = nInfr;
       if (sLast && rows.length > 0)
-        sLast.textContent = rows[rows.length - 1].indicatif || '—';
+        sLast.textContent = rows[0].indicatif || '—';
 
       const bdTous   = document.getElementById('badge-tous');
       const bdAlt    = document.getElementById('badge-alt');

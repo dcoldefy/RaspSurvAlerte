@@ -7,6 +7,8 @@ import time
 import requests
 from datetime import datetime
 
+CACHE_TTL = 7 * 24 * 3600  # 7 jours en secondes
+
 import config
 from database import save_passage, update_passage, get_active_flights, init_db
 from filters import est_avion_de_ligne, est_transport_commercial, analyser_infraction
@@ -73,7 +75,7 @@ class Scanner:
 
             with self.lock:
                 active_flights      = dict(self.state["active_flights"])
-                aircraft_type_cache = self.state["aircraft_type_cache"]
+                aircraft_type_cache = dict(self.state["aircraft_type_cache"])
 
             for s in states:
                 icao = (s[0] or "").strip()
@@ -90,9 +92,10 @@ class Scanner:
                     filtres += 1
                     continue
 
-                if icao not in aircraft_type_cache:
-                    aircraft_type_cache[icao] = chercher_type_aeronef(icao)
-                type_code = aircraft_type_cache[icao]
+                cached = aircraft_type_cache.get(icao)
+                if cached is None or (now_ts - cached["ts"]) > CACHE_TTL:
+                    aircraft_type_cache[icao] = {"type": chercher_type_aeronef(icao), "ts": now_ts}
+                type_code = aircraft_type_cache[icao]["type"]
                 if type_code is not None and not est_transport_commercial(type_code):
                     filtres += 1
                     continue
@@ -135,6 +138,10 @@ class Scanner:
             cutoff         = now_ts - config.DEDUP_WINDOW
             active_flights = {k: v for k, v in active_flights.items()
                               if v["last_seen"] >= cutoff}
+
+            cache_cutoff       = now_ts - CACHE_TTL
+            aircraft_type_cache = {k: v for k, v in aircraft_type_cache.items()
+                                   if v["ts"] >= cache_cutoff}
 
             with self.lock:
                 self.state["active_flights"]      = active_flights

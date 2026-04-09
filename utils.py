@@ -50,7 +50,7 @@ def get_code(msg):
         return ""
     if "DOUBLE" in msg:
         return "ALT+NUIT"
-    if "minimum legal" in msg:
+    if "minimum légal" in msg:
         return "ALT"
     if "restriction" in msg:
         return "NUIT"
@@ -83,7 +83,7 @@ def get_seuil_display(code, msg):
         return ""
     parts = []
     if "ALT" in code:
-        m = re.search(r'minimum legal de (\d+) m', msg)
+        m = re.search(r'minimum légal de (\d+) m', msg)
         if m:
             parts.append(f"< {m.group(1)} m")
     if "NUIT" in code:

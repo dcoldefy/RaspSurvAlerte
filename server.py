@@ -39,10 +39,9 @@ DESTINATAIRES = [
     },
 ]
 
-import time as _time
 import time
 app     = Flask(__name__)
-app.jinja_env.globals['css_version'] = int(_time.time())
+app.jinja_env.globals['css_version'] = int(time.time())
 init_db()   # garantit que la table existe avant toute requête HTTP
 scanner = Scanner()
 
@@ -238,10 +237,10 @@ def save_profil():
 @app.route("/reglages/seuils", methods=["POST"])
 def save_seuils():
     cfg = config.load()
-    cfg["alt_min_legale"] = int(request.form.get("alt_min_legale", 1000))
-    cfg["heure_nuit_deb"] = int(request.form.get("heure_nuit_deb", 22))
-    cfg["heure_nuit_fin"] = int(request.form.get("heure_nuit_fin", 6))
-    cfg["rayon_km"]       = int(request.form.get("rayon_km", 3))
+    cfg["alt_min_legale"] = max(0, int(request.form.get("alt_min_legale", 1000)))
+    cfg["heure_nuit_deb"] = max(0, min(23, int(request.form.get("heure_nuit_deb", 22))))
+    cfg["heure_nuit_fin"] = max(0, min(23, int(request.form.get("heure_nuit_fin", 6))))
+    cfg["rayon_km"]       = max(1, min(50, int(request.form.get("rayon_km", 3))))
     config.save(cfg)
     return redirect(url_for("reglages") + "?ok=seuils")
 
