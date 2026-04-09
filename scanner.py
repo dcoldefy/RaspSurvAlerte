@@ -46,11 +46,24 @@ class Scanner:
         t.start()
 
     def _loop(self):
+        backoff = 0
         while not self._stop.is_set():
             self._do_scan()
             with self.lock:
                 retry_after = self.state.pop("retry_after", None)
-            wait = retry_after if retry_after else config.SCAN_INTERVAL
+                is_rate_limit = (
+                    not self.state["status_ok"]
+                    and self.state["last_error_type"] == "rate_limit"
+                )
+            if retry_after:
+                backoff = 0
+                wait = retry_after
+            elif is_rate_limit:
+                backoff = min(backoff + 300, 1800)  # +5 min par échec, max 30 min
+                wait = config.SCAN_INTERVAL + backoff
+            else:
+                backoff = 0
+                wait = config.SCAN_INTERVAL
             self._stop.wait(wait)
 
     def _do_scan(self):
@@ -189,7 +202,7 @@ class Scanner:
                     retry_after = int(retry_after)
                 except (TypeError, ValueError):
                     retry_after = None
-                wait_txt = f" — réessai dans {retry_after}s" if retry_after else ""
+                wait_txt = f" — réessai dans {retry_after}s" if retry_after else " — backoff automatique"
                 err_msg  = f"Trop de requêtes OpenSky (429){wait_txt}"
             else:
                 err_type = "error"
