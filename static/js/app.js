@@ -13,10 +13,11 @@ function sortRows(rows) {
   const col = SORT.col;
   return [...rows].sort((a, b) => {
     let va = a[col], vb = b[col];
-    if (col === 'date') {
-      // DD/MM/YYYY → YYYYMMDD pour tri correct
+    if (col === 'date' || col === 'heure') {
+      // DD/MM/YYYY → YYYYMMDD ; pour heure, on combine date+heure pour éviter le mélange inter-jours
       const toISO = s => s ? s.split('/').reverse().join('') : '';
-      va = toISO(va); vb = toISO(vb);
+      va = toISO(a.date) + (a.heure || '');
+      vb = toISO(b.date) + (b.heure || '');
     }
     if (NUM_COLS.has(col)) {
       va = va ?? -Infinity; vb = vb ?? -Infinity;
