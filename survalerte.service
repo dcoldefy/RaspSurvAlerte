@@ -6,8 +6,8 @@ Wants=network-online.target
 [Service]
 Type=simple
 User=david
-WorkingDirectory=/home/david/raspsuraler
-ExecStart=/usr/bin/python3 /home/david/raspsuraler/server.py
+WorkingDirectory=/home/david/survalerte
+ExecStart=/usr/bin/python3 /home/david/survalerte/server.py
 Restart=always
 RestartSec=15
 StandardOutput=journal

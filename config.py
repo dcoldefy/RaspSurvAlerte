@@ -7,8 +7,8 @@ import os
 
 # Chemins fixes
 APP_TITLE     = "RaspSurAlert"
-DB_FILE       = os.path.expanduser("~/raspsuraler.db")
-CONFIG_PATH   = os.path.expanduser("~/.raspsuraler/config.json")
+DB_FILE       = os.path.expanduser("~/survalerte.db")
+CONFIG_PATH   = os.path.expanduser("~/.survalerte/config.json")
 SCAN_INTERVAL = 60
 DEDUP_WINDOW  = 600
 
