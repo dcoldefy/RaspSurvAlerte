@@ -10,6 +10,7 @@ WorkingDirectory=/home/david/survalerte
 ExecStart=/usr/bin/python3 /home/david/survalerte/server.py
 Restart=always
 RestartSec=15
+TimeoutStopSec=5
 StandardOutput=journal
 StandardError=journal
 Environment=PYTHONUNBUFFERED=1
