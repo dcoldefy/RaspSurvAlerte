@@ -4,7 +4,7 @@
 
 /* ── Tri colonnes ─────────────────────────────────────────────────── */
 
-const SORT = { col: null, dir: 1 }; // dir : 1=asc, -1=desc
+const SORT = { col: 'heure', dir: -1 }; // dir : 1=asc, -1=desc — défaut : plus récent en premier
 
 const NUM_COLS = new Set(['altitude_m', 'distance_km', 'vitesse_kmh', 'cap_deg']);
 

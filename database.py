@@ -71,12 +71,12 @@ def get_active_flights():
 
 
 def load_all():
-    """Retourne tous les survols triés altitude ASC (les plus bas en premier)."""
+    """Retourne tous les survols triés du plus récent au plus ancien."""
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("""SELECT date,heure,timestamp,icao24,indicatif,altitude_m,altitude_geo,
                         vitesse_kmh,cap_deg,au_sol,pays,lat,lon,infraction
-                 FROM survols ORDER BY altitude_m ASC NULLS LAST""")
+                 FROM survols ORDER BY timestamp DESC""")
     rows = c.fetchall()
     conn.close()
     return rows
