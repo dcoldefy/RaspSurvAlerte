@@ -17,9 +17,9 @@ python server.py
 bash setup.sh
 
 # Gestion du service
-systemctl status raspsuraler
-systemctl restart raspsuraler
-journalctl -u raspsuraler -f
+sudo systemctl status survalerte
+sudo systemctl restart survalerte
+journalctl -u survalerte -f
 ```
 
 ## Architecture
