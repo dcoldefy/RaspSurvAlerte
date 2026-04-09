@@ -82,7 +82,9 @@ class Scanner:
                    f"?lamin={lat-delta}&lomin={lon-delta}"
                    f"&lamax={lat+delta}&lomax={lon+delta}")
 
-            resp = requests.get(url, timeout=15)
+            auth = (cfg["opensky_user"], cfg["opensky_pass"]) \
+                   if cfg.get("opensky_user") and cfg.get("opensky_pass") else None
+            resp = requests.get(url, timeout=15, auth=auth)
             resp.raise_for_status()
             states = [s for s in (resp.json().get("states") or [])
                       if s[5] is not None and s[6] is not None

@@ -24,6 +24,8 @@ DEFAULTS = {
     "rayon_km": 3,
     "lat": 48.9897,
     "lon": 2.0939,
+    "opensky_user": "",
+    "opensky_pass": "",
     "profil": {
         "nom": "",
         "prenom": "",
@@ -55,3 +57,7 @@ def save(cfg):
     os.makedirs(os.path.dirname(CONFIG_PATH), exist_ok=True)
     with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(cfg, f, indent=2, ensure_ascii=False)
+    try:
+        os.chmod(CONFIG_PATH, 0o600)
+    except OSError:
+        pass

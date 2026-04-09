@@ -269,6 +269,15 @@ def save_seuils():
     return redirect(url_for("reglages") + "?ok=seuils")
 
 
+@app.route("/reglages/opensky", methods=["POST"])
+def save_opensky():
+    cfg = config.load()
+    cfg["opensky_user"] = request.form.get("opensky_user", "").strip()
+    cfg["opensky_pass"] = request.form.get("opensky_pass", "")
+    config.save(cfg)
+    return redirect(url_for("reglages") + "?ok=opensky")
+
+
 @app.route("/effacer", methods=["POST"])
 def effacer():
     clear_db()

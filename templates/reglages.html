@@ -14,6 +14,11 @@
     <i class="bi bi-check-circle-fill me-2"></i>Seuils de détection mis à jour.
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
+{% elif ok == 'opensky' %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>Compte OpenSky enregistré.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
 {% endif %}
 
 <div class="row g-4">
@@ -138,6 +143,41 @@
 
           <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-floppy-fill me-1"></i>Enregistrer les seuils
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carte OpenSky -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="bi bi-key-fill text-primary"></i>
+        <strong>Compte OpenSky Network</strong>
+      </div>
+      <div class="card-body">
+        <form method="post" action="/reglages/opensky">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Identifiant</label>
+            <input type="text" class="form-control" name="opensky_user"
+                   value="{{ cfg.opensky_user }}" placeholder="votre login OpenSky"
+                   autocomplete="username">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Mot de passe</label>
+            <input type="password" class="form-control" name="opensky_pass"
+                   value="{{ cfg.opensky_pass }}" placeholder="••••••••"
+                   autocomplete="current-password">
+          </div>
+          <div class="form-text mb-3">
+            <i class="bi bi-info-circle me-1"></i>
+            Un compte gratuit sur
+            <a href="https://opensky-network.org" target="_blank">opensky-network.org</a>
+            augmente la limite de requêtes (~4000/j vs ~400 anonyme).
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-floppy-fill me-1"></i>Enregistrer
           </button>
         </form>
       </div>
