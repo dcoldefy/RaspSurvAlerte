@@ -119,9 +119,23 @@ def api_stats():
 
 @app.route("/api/status")
 def api_status():
+    import time as _time
     st = scanner.get_state()
+    status = st["status"]
+    retry_until = st.get("retry_until")
+    if retry_until:
+        remaining = max(0, int(retry_until - _time.time()))
+        h, rem = divmod(remaining, 3600)
+        m, s = divmod(rem, 60)
+        if h:
+            countdown = f"{h}h{m:02d}m{s:02d}s"
+        elif m:
+            countdown = f"{m}m{s:02d}s"
+        else:
+            countdown = f"{s}s"
+        status = f"{status} — réessai dans {countdown}"
     return jsonify({
-        "status":          st["status"],
+        "status":          status,
         "status_ok":       st["status_ok"],
         "last_scan":       st["last_scan"],
         "n_infr":          st["n_infr"],

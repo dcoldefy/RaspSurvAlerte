@@ -34,7 +34,7 @@ class Scanner:
             "error_count":         0,
             "error_since":         None,
             "last_error_type":     None,
-            "retry_after":         None,
+            "retry_until":         None,
         }
         self._stop = threading.Event()
 
@@ -59,11 +59,14 @@ class Scanner:
                 backoff = 0
                 wait = retry_after
             elif is_rate_limit:
-                backoff = min(backoff + 300, 1800)  # +5 min par échec, max 30 min
+                backoff = min(backoff + 300, 1800)
                 wait = config.SCAN_INTERVAL + backoff
             else:
                 backoff = 0
                 wait = config.SCAN_INTERVAL
+            if is_rate_limit or retry_after:
+                with self.lock:
+                    self.state["retry_until"] = time.time() + wait
             self._stop.wait(wait)
 
     def _do_scan(self):
@@ -172,6 +175,7 @@ class Scanner:
                 self.state["filtres"]    = filtres
                 self.state["n_infr"]     = n_infr
                 self.state["status_ok"]  = True
+                self.state["retry_until"] = None
                 self.state["scan_count"] += 1
                 sc = self.state["scan_count"]
                 infr_txt = f" · ⚠ {n_infr} infraction(s)" if n_infr else ""
@@ -203,18 +207,7 @@ class Scanner:
                     retry_after = int(retry_after)
                 except (TypeError, ValueError):
                     retry_after = None
-                if retry_after:
-                    h, rem = divmod(retry_after, 3600)
-                    m, s = divmod(rem, 60)
-                    if h:
-                        wait_txt = f" — réessai dans {h}h{m:02d}m{s:02d}s"
-                    elif m:
-                        wait_txt = f" — réessai dans {m}m{s:02d}s"
-                    else:
-                        wait_txt = f" — réessai dans {s}s"
-                else:
-                    wait_txt = " — backoff auto"
-                err_msg  = f"Trop de requêtes OpenSky (429){wait_txt}"
+                err_msg = "Trop de requêtes OpenSky (429)"
             else:
                 err_type = "error"
                 err_msg  = f"Erreur scan : {e}"
@@ -226,7 +219,7 @@ class Scanner:
                 self.state["status"]          = err_msg
                 self.state["status_ok"]       = False
                 if err_type == "rate_limit" and retry_after:
-                    self.state["retry_after"] = retry_after
+                    self.state["retry_after"] = retry_after  # consommé par _loop
 
     def stop(self):
         self._stop.set()
