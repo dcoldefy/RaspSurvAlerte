@@ -204,8 +204,14 @@ class Scanner:
                 except (TypeError, ValueError):
                     retry_after = None
                 if retry_after:
-                    m, s = divmod(retry_after, 60)
-                    wait_txt = f" — réessai dans {m}m{s:02d}s" if m else f" — réessai dans {s}s"
+                    h, rem = divmod(retry_after, 3600)
+                    m, s = divmod(rem, 60)
+                    if h:
+                        wait_txt = f" — réessai dans {h}h{m:02d}m{s:02d}s"
+                    elif m:
+                        wait_txt = f" — réessai dans {m}m{s:02d}s"
+                    else:
+                        wait_txt = f" — réessai dans {s}s"
                 else:
                     wait_txt = " — backoff auto"
                 err_msg  = f"Trop de requêtes OpenSky (429){wait_txt}"
