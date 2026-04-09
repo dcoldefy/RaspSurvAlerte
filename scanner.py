@@ -197,12 +197,13 @@ class Scanner:
             import requests as _req
             if isinstance(e, _req.exceptions.HTTPError) and e.response is not None and e.response.status_code == 429:
                 err_type    = "rate_limit"
-                retry_after = e.response.headers.get("Retry-After")
+                retry_after = (e.response.headers.get("X-Rate-Limit-Retry-After-Seconds")
+                               or e.response.headers.get("Retry-After"))
                 try:
                     retry_after = int(retry_after)
                 except (TypeError, ValueError):
                     retry_after = None
-                wait_txt = f" — réessai dans {retry_after}s" if retry_after else " — backoff automatique"
+                wait_txt = f" — réessai dans {retry_after}s" if retry_after else " — backoff auto"
                 err_msg  = f"Trop de requêtes OpenSky (429){wait_txt}"
             else:
                 err_type = "error"
