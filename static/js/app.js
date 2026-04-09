@@ -52,8 +52,12 @@ function updateStatus() {
       if (!data.status_ok) {
         dotClass = data.last_error_type === 'rate_limit' ? 'status-warn' : 'status-err';
       }
-      dot.className    = 'status-dot ' + dotClass;
-      text.textContent = data.status;
+      dot.className = 'status-dot ' + dotClass;
+      let statusTxt = data.status;
+      if (data.opensky_credits !== null && data.opensky_credits !== undefined) {
+        statusTxt += ` · ${data.opensky_credits} crédits restants`;
+      }
+      text.textContent = statusTxt;
     })
     .catch(() => {
       const dot = document.getElementById('status-dot');

@@ -35,6 +35,7 @@ class Scanner:
             "error_since":         None,
             "last_error_type":     None,
             "retry_until":         None,
+            "opensky_credits":     None,
         }
         self._stop = threading.Event()
 
@@ -85,6 +86,12 @@ class Scanner:
             auth = (cfg["opensky_user"], cfg["opensky_pass"]) \
                    if cfg.get("opensky_user") and cfg.get("opensky_pass") else None
             resp = requests.get(url, timeout=15, auth=auth)
+            # Log des headers rate-limit pour identifier les bons noms
+            rl_headers = {k: v for k, v in resp.headers.items() if 'rate' in k.lower() or 'limit' in k.lower()}
+            if rl_headers:
+                import logging
+                logging.getLogger(__name__).info("OpenSky rate-limit headers: %s", rl_headers)
+            credits_remaining = resp.headers.get("X-Rate-Limit-Remaining")
             resp.raise_for_status()
             states = [s for s in (resp.json().get("states") or [])
                       if s[5] is not None and s[6] is not None
@@ -176,8 +183,9 @@ class Scanner:
                 self.state["frozen"]     = frozen
                 self.state["filtres"]    = filtres
                 self.state["n_infr"]     = n_infr
-                self.state["status_ok"]  = True
-                self.state["retry_until"] = None
+                self.state["status_ok"]    = True
+                self.state["retry_until"]  = None
+                self.state["opensky_credits"] = int(credits_remaining) if credits_remaining is not None else None
                 self.state["scan_count"] += 1
                 sc = self.state["scan_count"]
                 infr_txt = f" · ⚠ {n_infr} infraction(s)" if n_infr else ""

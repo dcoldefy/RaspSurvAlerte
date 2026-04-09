@@ -135,12 +135,13 @@ def api_status():
             countdown = f"{s}s"
         status = f"{status} — réessai dans {countdown}"
     return jsonify({
-        "status":          status,
-        "status_ok":       st["status_ok"],
-        "last_scan":       st["last_scan"],
-        "n_infr":          st["n_infr"],
-        "error_count":     st["error_count"],
-        "last_error_type": st["last_error_type"],
+        "status":           status,
+        "status_ok":        st["status_ok"],
+        "last_scan":        st["last_scan"],
+        "n_infr":           st["n_infr"],
+        "error_count":      st["error_count"],
+        "last_error_type":  st["last_error_type"],
+        "opensky_credits":  st.get("opensky_credits"),
     })
 
 
