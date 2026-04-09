@@ -2,8 +2,8 @@
 # setup.sh — Installation automatique de RaspSurAlert au premier démarrage
 set -e
 
-LOG="/home/david/survalerte_install.log"
-APP="/home/david/survalerte"
+LOG="$HOME/survalerte_install.log"
+APP="$HOME/survalerte"
 
 echo "[$(date)] Début de l'installation RaspSurAlert" | tee -a "$LOG"
 
@@ -23,13 +23,14 @@ apt-get update -q >> "$LOG" 2>&1
 apt-get install -y python3-flask python3-requests >> "$LOG" 2>&1
 
 # Répertoire de configuration
-mkdir -p /home/david/.survalerte
-chown david:david /home/david/.survalerte
-chown -R david:david "$APP"
+mkdir -p "$HOME/.survalerte"
+chown "$USER:$USER" "$HOME/.survalerte"
+chown -R "$USER:$USER" "$APP"
 
 # Service systemd
 echo "[$(date)] Activation du service RaspSurAlert..." | tee -a "$LOG"
-cp "$APP/survalerte.service" /etc/systemd/system/
+sed "s|/home/david|$HOME|g; s|User=david|User=$USER|g" \
+    "$APP/survalerte.service" > /etc/systemd/system/survalerte.service
 systemctl daemon-reload
 systemctl enable survalerte
 systemctl start survalerte

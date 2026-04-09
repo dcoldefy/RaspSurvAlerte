@@ -2,6 +2,8 @@
 Serveur Flask — interface web RaspSurAlert.
 Lance le scanner au démarrage, sert le dashboard et les réglages.
 """
+import re
+import signal
 from flask import Flask, render_template, jsonify, request, redirect, url_for, Response
 
 import config
@@ -133,15 +135,18 @@ def api_stream():
     """SSE — notifie le client dès que le scanner termine un nouveau scan."""
     def generate():
         last_count = -1
-        while True:
-            state = scanner.get_state()
-            count = state.get("scan_count", 0)
-            if count != last_count:
-                last_count = count
-                yield "data: update\n\n"
-            else:
-                yield "data: ping\n\n"
-            time.sleep(2)
+        try:
+            while True:
+                state = scanner.get_state()
+                count = state.get("scan_count", 0)
+                if count != last_count:
+                    last_count = count
+                    yield "data: update\n\n"
+                else:
+                    yield "data: ping\n\n"
+                time.sleep(2)
+        except GeneratorExit:
+            pass
     return Response(generate(), mimetype="text/event-stream",
                     headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
 
@@ -149,7 +154,7 @@ def api_stream():
 @app.route("/api/communes")
 def api_communes():
     cp = request.args.get("cp", "").strip()
-    if not cp:
+    if not re.fullmatch(r'[0-9]{5}', cp):
         return jsonify([])
     return jsonify(chercher_communes(cp))
 
@@ -175,9 +180,14 @@ def api_destinataires():
 
 @app.route("/api/plainte", methods=["POST"])
 def api_plainte():
-    data     = request.get_json(force=True)
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Requête JSON invalide."}), 400
     vol      = data.get("vol", {})
-    dest_idx = int(data.get("destinataire_idx", 0))
+    try:
+        dest_idx = int(data.get("destinataire_idx", 0))
+    except (TypeError, ValueError):
+        dest_idx = 0
 
     cfg    = config.load()
     profil = cfg.get("profil", {})
@@ -255,5 +265,9 @@ def effacer():
 # ── Point d'entrée ─────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
+    def _shutdown(signum, frame):
+        scanner.stop()
+    signal.signal(signal.SIGTERM, _shutdown)
+
     scanner.start()
     app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)

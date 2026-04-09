@@ -13,6 +13,7 @@ import config
 from database import save_passage, update_passage, get_active_flights, init_db
 from filters import est_avion_de_ligne, est_transport_commercial, analyser_infraction
 from api import chercher_type_aeronef
+from utils import distance_km
 
 
 class Scanner:
@@ -64,7 +65,8 @@ class Scanner:
             resp = requests.get(url, timeout=15)
             resp.raise_for_status()
             states = [s for s in (resp.json().get("states") or [])
-                      if s[5] is not None and s[6] is not None]
+                      if s[5] is not None and s[6] is not None
+                      and distance_km(lat, lon, s[6], s[5]) <= cfg["rayon_km"]]
 
             now    = datetime.now()
             now_ts = int(now.timestamp())
@@ -189,6 +191,9 @@ class Scanner:
                 self.state["last_error_type"] = err_type
                 self.state["status"]          = err_msg
                 self.state["status_ok"]       = False
+
+    def stop(self):
+        self._stop.set()
 
     def get_state(self):
         with self.lock:

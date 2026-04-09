@@ -88,14 +88,14 @@ function updateTable() {
       const bdNuit   = document.getElementById('badge-nuit');
       const bdDouble = document.getElementById('badge-double');
       if (bdTous)   bdTous.textContent   = rows.length;
-      if (bdAlt)    bdAlt.textContent    = nAlt + nDouble;
+      if (bdAlt)    bdAlt.textContent    = nAlt;
       if (bdNuit)   bdNuit.textContent   = nNuit;
       if (bdDouble) bdDouble.textContent = nDouble;
 
       const filtered = sortRows(activeFilter === 'tous'
         ? rows
         : rows.filter(r => {
-            if (activeFilter === 'ALT')      return r.code === 'ALT' || r.code === 'ALT+NUIT';
+            if (activeFilter === 'ALT')      return r.code === 'ALT';
             if (activeFilter === 'NUIT')     return r.code === 'NUIT';
             if (activeFilter === 'ALT+NUIT') return r.code === 'ALT+NUIT';
             return true;
