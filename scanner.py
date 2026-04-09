@@ -34,6 +34,7 @@ class Scanner:
             "error_count":         0,
             "error_since":         None,
             "last_error_type":     None,
+            "retry_after":         None,
         }
         self._stop = threading.Event()
 
@@ -47,7 +48,10 @@ class Scanner:
     def _loop(self):
         while not self._stop.is_set():
             self._do_scan()
-            self._stop.wait(config.SCAN_INTERVAL)
+            with self.lock:
+                retry_after = self.state.pop("retry_after", None)
+            wait = retry_after if retry_after else config.SCAN_INTERVAL
+            self._stop.wait(wait)
 
     def _do_scan(self):
         cfg = config.load()
@@ -179,8 +183,14 @@ class Scanner:
         except Exception as e:
             import requests as _req
             if isinstance(e, _req.exceptions.HTTPError) and e.response is not None and e.response.status_code == 429:
-                err_type = "rate_limit"
-                err_msg  = "Trop de requêtes OpenSky (429) — scan ignoré"
+                err_type    = "rate_limit"
+                retry_after = e.response.headers.get("Retry-After")
+                try:
+                    retry_after = int(retry_after)
+                except (TypeError, ValueError):
+                    retry_after = None
+                wait_txt = f" — réessai dans {retry_after}s" if retry_after else ""
+                err_msg  = f"Trop de requêtes OpenSky (429){wait_txt}"
             else:
                 err_type = "error"
                 err_msg  = f"Erreur scan : {e}"
@@ -191,6 +201,8 @@ class Scanner:
                 self.state["last_error_type"] = err_type
                 self.state["status"]          = err_msg
                 self.state["status_ok"]       = False
+                if err_type == "rate_limit" and retry_after:
+                    self.state["retry_after"] = retry_after
 
     def stop(self):
         self._stop.set()
