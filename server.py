@@ -270,6 +270,16 @@ def save_seuils():
     return redirect(url_for("reglages") + "?ok=seuils")
 
 
+@app.route("/reglages/source", methods=["POST"])
+def save_source():
+    cfg = config.load()
+    source = request.form.get("source", "flightradar24")
+    if source in ("opensky", "flightradar24"):
+        cfg["source"] = source
+        config.save(cfg)
+    return redirect(url_for("reglages") + "?ok=source")
+
+
 @app.route("/reglages/opensky", methods=["POST"])
 def save_opensky():
     cfg = config.load()

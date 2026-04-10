@@ -19,6 +19,11 @@
     <i class="bi bi-check-circle-fill me-2"></i>Compte OpenSky enregistré.
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
+{% elif ok == 'source' %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>Source de données mise à jour.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
 {% endif %}
 
 <div class="row g-4">
@@ -143,6 +148,43 @@
 
           <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-floppy-fill me-1"></i>Enregistrer les seuils
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carte source de données -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="bi bi-broadcast text-primary"></i>
+        <strong>Source de données ADS-B</strong>
+      </div>
+      <div class="card-body">
+        <form method="post" action="/reglages/source">
+          <div class="mb-3">
+            <div class="form-check mb-2">
+              <input class="form-check-input" type="radio" name="source"
+                     value="flightradar24" id="src-fr24"
+                     {% if cfg.source == 'flightradar24' %}checked{% endif %}>
+              <label class="form-check-label" for="src-fr24">
+                <strong>FlightRadar24</strong>
+                <span class="text-muted small ms-1">— sans limite, données riches</span>
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="radio" name="source"
+                     value="opensky" id="src-opensky"
+                     {% if cfg.source == 'opensky' %}checked{% endif %}>
+              <label class="form-check-label" for="src-opensky">
+                <strong>OpenSky Network</strong>
+                <span class="text-muted small ms-1">— open source, limité (~100 req/fenêtre)</span>
+              </label>
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-floppy-fill me-1"></i>Enregistrer
           </button>
         </form>
       </div>

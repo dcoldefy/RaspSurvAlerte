@@ -26,6 +26,7 @@ DEFAULTS = {
     "lon": 2.0939,
     "opensky_user": "",
     "opensky_pass": "",
+    "source": "flightradar24",
     "profil": {
         "nom": "",
         "prenom": "",
