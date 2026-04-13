@@ -108,7 +108,7 @@ def generer_plainte_pdf_bytes(profil, vol, destinataire):
         "Si une infraction était constatée, je souhaite que des sanctions soient prises contre les responsables.",
         None,
         f"Pour information, il semblerait que le vol concerné soit le vol : {ref_vol}"
-         + (f" ({icao24})" if icao24 and icao24.strip() != ref_vol else "") + ",",
+         + (f" (ICAO24 : {icao24})" if icao24 and icao24.strip() != ref_vol else "") + ",",
     ]
     for ligne in lignes:
         if ligne:
