@@ -120,7 +120,8 @@ function updateTable() {
         return `
           <tr class="${escHtml(r.css_class)}" data-code="${escHtml(r.code)}"
               data-date="${escHtml(r.date)}" data-heure="${escHtml(r.heure)}"
-              data-indicatif="${escHtml(r.indicatif)}" data-icao24="${escHtml(r.icao24)}">
+              data-indicatif="${escHtml(r.indicatif)}" data-icao24="${escHtml(r.icao24)}"
+              data-altitude="${r.altitude_m != null ? r.altitude_m : ''}">
             <td class="text-nowrap text-muted small">${escHtml(r.date)}</td>
             <td class="text-nowrap fw-semibold">${escHtml(r.heure)}</td>
             <td class="fw-bold font-mono">${escHtml(r.indicatif)}</td>
@@ -200,11 +201,14 @@ function showCtxMenu(e, tr) {
   if (!ctxMenu) return;
   const code = tr.dataset.code || '';
 
+  const altRaw = tr.dataset.altitude;
   ctxVolData = {
-    date:      tr.dataset.date      || '',
-    heure:     tr.dataset.heure     || '',
-    indicatif: tr.dataset.indicatif || '',
-    icao24:    tr.dataset.icao24    || '',
+    date:        tr.dataset.date      || '',
+    heure:       tr.dataset.heure     || '',
+    indicatif:   tr.dataset.indicatif || '',
+    icao24:      tr.dataset.icao24    || '',
+    code:        code,
+    altitude_m:  altRaw !== '' && altRaw != null ? parseFloat(altRaw) : null,
   };
 
   const ref = ctxVolData.indicatif || ctxVolData.icao24 || '—';

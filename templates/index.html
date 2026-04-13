@@ -102,7 +102,8 @@
         {% set code = get_code(infraction or '') %}
         <tr class="{{ get_css_class(code) }}" data-code="{{ code }}"
             data-date="{{ date }}" data-heure="{{ heure }}"
-            data-indicatif="{{ indicatif }}" data-icao24="{{ icao24 }}">
+            data-indicatif="{{ indicatif }}" data-icao24="{{ icao24 }}"
+            data-altitude="{{ alt_m if alt_m is not none else '' }}">
           <td class="text-nowrap text-muted small">{{ date }}</td>
           <td class="text-nowrap fw-semibold">{{ heure }}</td>
           <td class="fw-bold font-mono">{{ indicatif }}</td>
