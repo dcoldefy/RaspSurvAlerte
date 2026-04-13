@@ -85,10 +85,23 @@ def generer_plainte_pdf_bytes(profil, vol, destinataire):
     story.append(Spacer(1, 0.5*cm))
 
     # Corps
+    code_infr = vol.get("code", "") or ""
+    alt_m     = vol.get("altitude_m")
+    alt_str   = f"{int(alt_m)} m" if alt_m is not None else "altitude inconnue"
+
+    if code_infr == "ALT":
+        motif = f"à basse altitude ({alt_str}) le {date_vol} à {heure_vol}"
+    elif code_infr == "NUIT":
+        motif = f"en dehors des horaires autorisés le {date_vol} à {heure_vol}"
+    elif code_infr == "ALT+NUIT":
+        motif = (f"à basse altitude ({alt_str}) et en dehors des horaires autorisés"
+                 f" le {date_vol} à {heure_vol}")
+    else:
+        motif = f"à basse altitude le {date_vol} à {heure_vol}"
+
     lignes = [
         f"Je soussigné(e) {prenom} {nom}, demeurant au {adresse}, {cp}, {ville_pl},",
-        (f"déclare avoir été gêné(e) par un avion volant à basse altitude"
-         f" le {date_vol} à {heure_vol} au-dessus de {ville_pl}."),
+        f"déclare avoir été gêné(e) par un avion volant {motif}, au-dessus de {ville_pl}.",
         None,
         "Je souhaite que ma plainte soit enregistrée et qu'une réponse circonstanciée me soit adressée.",
         None,
