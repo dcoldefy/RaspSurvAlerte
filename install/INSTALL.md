@@ -49,7 +49,7 @@ curl -sSL https://raw.githubusercontent.com/dcoldefy/RaspSurvAlerte/master/insta
 
 Le script effectue automatiquement :
 - Mise à jour des paquets système
-- Installation d'**avahi-daemon** — ce service permet d'accéder à l'interface via `http://survalerte.local:5000` depuis n'importe quel appareil du réseau, sans avoir besoin de connaître l'adresse IP du Pi
+- **Question sur avahi-daemon** (voir ci-dessous)
 - Clonage du dépôt GitHub
 - Installation des dépendances Python (Flask, FlightRadar24, ReportLab…)
 - Configuration du service systemd (démarrage automatique)
@@ -57,21 +57,39 @@ Le script effectue automatiquement :
 
 Durée estimée : 3 à 5 minutes.
 
+### Avahi-daemon : accès par nom ou par IP ?
+
+Pendant l'installation, le script vous posera la question suivante :
+
+```
+Installer avahi-daemon ? [o/N]
+```
+
+**Option A — Répondre `o` (accès par nom)** :
+Installe `avahi-daemon`, un service de découverte réseau (protocole mDNS/Bonjour).
+Vous pourrez accéder à l'interface via `http://survalerte.local:5000` sans connaître l'IP.
+> **Attention :** ce service ouvre un port réseau supplémentaire sur le Pi. Le risque est faible sur un réseau domestique privé, mais à éviter si votre réseau wifi est partagé ou peu sécurisé.
+
+**Option B — Répondre `N` (accès par IP, recommandé si sécurité prioritaire)** :
+Aucun service supplémentaire n'est installé. Vous accéderez à l'interface en tapant directement l'adresse IP du Pi dans votre navigateur : `http://192.168.1.xxx:5000`. L'IP est visible dans l'interface de votre box (liste des appareils connectés).
+
 ---
 
 ## Étape 4 — Accéder à l'interface
 
-Une fois l'installation terminée, ouvrir dans un navigateur :
+Une fois l'installation terminée, ouvrir dans un navigateur.
 
+**Si avahi installé :**
 ```
 http://survalerte.local:5000
 ```
 
-ou avec l'IP directe :
-
+**Sinon, avec l'IP directe :**
 ```
 http://<IP_DU_PI>:5000
 ```
+
+> L'IP exacte du Pi est affichée à la fin du script d'installation.
 
 ---
 
