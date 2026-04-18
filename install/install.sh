@@ -40,8 +40,10 @@ done
 echo ""
 echo "Mise à jour des paquets système..."
 apt-get update -q >> "$LOG" 2>&1
-apt-get install -y git python3 python3-pip python3-venv >> "$LOG" 2>&1
-ok "Paquets système installés"
+apt-get install -y git python3 python3-pip python3-venv avahi-daemon >> "$LOG" 2>&1
+systemctl enable avahi-daemon >> "$LOG" 2>&1
+systemctl start avahi-daemon >> "$LOG" 2>&1
+ok "Paquets système installés (avahi activé → survalerte.local)"
 
 # --- Clonage du dépôt --------------------------------------------------------
 echo ""
@@ -94,12 +96,15 @@ ok "Reboot quotidien à 3h00 configuré"
 
 # --- Résumé ------------------------------------------------------------------
 IP=$(hostname -I | awk '{print $1}')
+HOSTNAME=$(hostname)
 echo ""
 echo "=============================================="
 echo -e "${GREEN}  Installation terminée avec succès !${NC}"
 echo "=============================================="
 echo ""
 echo "  Interface web : http://$IP:5000"
+echo "  Ou via nom    : http://$HOSTNAME.local:5000"
+echo ""
 echo "  Logs service  : journalctl -u survalerte -f"
 echo "  Redémarrer    : sudo systemctl restart survalerte"
 echo ""
