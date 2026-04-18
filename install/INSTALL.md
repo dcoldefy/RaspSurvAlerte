@@ -66,7 +66,8 @@ Installer avahi-daemon ? [o/N]
 ```
 
 > **Accès local :** les deux options fonctionnent sur votre réseau domestique (wifi/ethernet).
-> **Accès depuis l'extérieur :** possible uniquement via l'IP du Pi (`http://192.168.1.xxx:5000`) en étant connecté au VPN de votre box (ex: VPN intégré Freebox). Le nom `survalerte.local` ne fonctionne **pas** depuis l'extérieur, même avec le VPN.
+> **Accès depuis l'extérieur :** possible via [Tailscale](https://tailscale.com) (VPN mesh gratuit). En installant Tailscale sur le Pi et sur votre téléphone/PC, vous accédez au Pi via son IP Tailscale (`http://100.x.x.x:5000`) depuis n'importe où. Avec la fonctionnalité MagicDNS de Tailscale, l'accès par nom (`http://survalerte:5000`) fonctionne également. Le nom `survalerte.local` (avahi) ne fonctionne **pas** depuis l'extérieur.
+> Tailscale est très sécurisé (protocole WireGuard, chiffrement de bout en bout, aucun port ouvert sur la box). Cependant, comme tout accès externe, il élargit la surface d'attaque : protégez bien votre compte Tailscale (mot de passe fort + authentification à deux facteurs).
 
 **Option A — Répondre `o` (accès par nom)** :
 Installe `avahi-daemon`, un service de découverte réseau (protocole mDNS/Bonjour).
