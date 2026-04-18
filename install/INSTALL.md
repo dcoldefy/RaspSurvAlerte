@@ -49,6 +49,7 @@ curl -sSL https://raw.githubusercontent.com/dcoldefy/RaspSurvAlerte/master/insta
 
 Le script effectue automatiquement :
 - Mise à jour des paquets système
+- Installation d'**avahi-daemon** — ce service permet d'accéder à l'interface via `http://survalerte.local:5000` depuis n'importe quel appareil du réseau, sans avoir besoin de connaître l'adresse IP du Pi
 - Clonage du dépôt GitHub
 - Installation des dépendances Python (Flask, FlightRadar24, ReportLab…)
 - Configuration du service systemd (démarrage automatique)

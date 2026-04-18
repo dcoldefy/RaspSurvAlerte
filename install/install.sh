@@ -43,7 +43,8 @@ apt-get update -q >> "$LOG" 2>&1
 apt-get install -y git python3 python3-pip python3-venv avahi-daemon >> "$LOG" 2>&1
 systemctl enable avahi-daemon >> "$LOG" 2>&1
 systemctl start avahi-daemon >> "$LOG" 2>&1
-ok "Paquets système installés (avahi activé → survalerte.local)"
+ok "Paquets système installés"
+ok "avahi-daemon activé — permet d'accéder à l'interface via http://$(hostname).local:5000 sans connaître l'IP"
 
 # --- Clonage du dépôt --------------------------------------------------------
 echo ""
