@@ -65,13 +65,15 @@ Pendant l'installation, le script vous posera la question suivante :
 Installer avahi-daemon ? [o/N]
 ```
 
+> **Dans les deux cas, l'accès est limité à votre réseau local** (wifi/ethernet de votre domicile). L'interface ne sera pas accessible depuis internet.
+
 **Option A — Répondre `o` (accès par nom)** :
 Installe `avahi-daemon`, un service de découverte réseau (protocole mDNS/Bonjour).
 Vous pourrez accéder à l'interface via `http://survalerte.local:5000` sans connaître l'IP.
 > **Attention :** ce service ouvre un port réseau supplémentaire sur le Pi. Le risque est faible sur un réseau domestique privé, mais à éviter si votre réseau wifi est partagé ou peu sécurisé.
 
 **Option B — Répondre `N` (accès par IP, recommandé si sécurité prioritaire)** :
-Aucun service supplémentaire n'est installé. Vous accéderez à l'interface en tapant directement l'adresse IP du Pi dans votre navigateur : `http://192.168.1.xxx:5000`. L'IP est visible dans l'interface de votre box (liste des appareils connectés).
+Aucun service supplémentaire n'est installé. Vous accéderez à l'interface en tapant directement l'adresse IP du Pi dans votre navigateur : `http://192.168.1.xxx:5000`. L'IP est visible dans l'interface de votre box (liste des appareils connectés). Accès réseau local uniquement, comme l'option A.
 
 ---
 
