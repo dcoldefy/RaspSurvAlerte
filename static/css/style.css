@@ -354,5 +354,27 @@ body {
   .table-wrapper {
     max-height: 55vh;
   }
+}
 
+@media (max-width: 576px) {
+  /* Masquer la colonne Date sur mobile (Heure suffit) */
+  #main-table th:nth-child(1),
+  #main-table td:nth-child(1) {
+    display: none;
+  }
+
+  /* Laisser le tableau définir sa propre largeur + scroll horizontal */
+  #main-table {
+    table-layout: auto;
+    font-size: 0.78rem;
+    width: max-content;
+    min-width: 100%;
+  }
+
+  /* Réduire les min-widths pour mobile */
+  #main-table th:nth-child(2)  { min-width:  55px; } /* Heure     */
+  #main-table th:nth-child(3)  { min-width:  70px; } /* Indicatif */
+  #main-table th:nth-child(5)  { min-width:  65px; } /* Altitude  */
+  #main-table th:nth-child(6)  { min-width:  55px; } /* Distance  */
+  #main-table th:nth-child(10) { min-width: 110px; } /* Infraction */
 }
