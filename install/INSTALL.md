@@ -65,7 +65,8 @@ Pendant l'installation, le script vous posera la question suivante :
 Installer avahi-daemon ? [o/N]
 ```
 
-> **Dans les deux cas, l'accès est limité à votre réseau local** (wifi/ethernet de votre domicile). L'interface ne sera pas accessible depuis internet.
+> **Accès local :** les deux options fonctionnent sur votre réseau domestique (wifi/ethernet).
+> **Accès depuis l'extérieur :** possible uniquement via l'IP du Pi (`http://192.168.1.xxx:5000`) en étant connecté au VPN de votre box (ex: VPN intégré Freebox). Le nom `survalerte.local` ne fonctionne **pas** depuis l'extérieur, même avec le VPN.
 
 **Option A — Répondre `o` (accès par nom)** :
 Installe `avahi-daemon`, un service de découverte réseau (protocole mDNS/Bonjour).
