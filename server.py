@@ -304,4 +304,8 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, _shutdown)
 
     scanner.start()
-    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
+    from pathlib import Path
+    cert = Path.home() / "survalerte.tail57ebcb.ts.net.crt"
+    key  = Path.home() / "survalerte.tail57ebcb.ts.net.key"
+    ssl_ctx = (str(cert), str(key)) if cert.exists() and key.exists() else None
+    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True, ssl_context=ssl_ctx)
