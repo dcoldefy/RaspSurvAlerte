@@ -35,6 +35,24 @@ URL : `https://survalerte.tail57ebcb.ts.net:10000/`
 
 > Flask tourne en HTTP pur (`ssl_context=None`). Le HTTPS est entièrement géré par Tailscale Funnel. Ne pas réactiver `ssl_context` dans `server.py`.
 
+## PWA (Progressive Web App)
+
+L'app est installable sur Android/iOS via Chrome. Fichiers concernés :
+
+```
+static/manifest.json     — métadonnées PWA (nom, couleurs, icônes)
+static/sw.js             — service worker (cache offline)
+static/icons/icon.svg    — icône source (avion Bootstrap Icons sur fond navy)
+static/icons/icon-192.png
+static/icons/icon-512.png
+```
+
+La route `/sw.js` dans `server.py` sert le service worker depuis la racine (scope `/`).
+Le manifest et le SW sont déclarés dans `templates/base.html`.
+
+> Pour regénérer les PNG depuis le SVG : lancer un serveur HTTP local sur `static/icons/`
+> et utiliser Chrome headless `--screenshot --window-size=512,512`.
+
 ## Architecture
 
 Le projet est une application Flask mono-fichier `server.py` avec un thread de scan en arrière-plan. Voici comment les modules s'articulent :
