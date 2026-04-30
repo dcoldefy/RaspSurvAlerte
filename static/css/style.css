@@ -226,11 +226,12 @@ body {
 
 .seuil-card-link {
   display: none;
-  margin-top: 4px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: #a00;
-  font-style: italic;
+  margin-top: 3px;
+  font-size: 0.58rem;
+  font-weight: 600;
+  color: var(--red);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
   line-height: 1.3;
 }
 
