@@ -86,6 +86,8 @@ Ouvrez un terminal Windows (touche `Win` + `R`, tapez `cmd`, puis Entrée) et co
 ssh votre-username@survalerte.local
 ```
 
+> Si vous avez choisi un hostname différent de `survalerte`, remplacez `survalerte.local` par `votre-hostname.local`.
+
 > Si vous obtenez `Are you sure you want to continue connecting?` → tapez `yes` puis Entrée.
 
 Si `survalerte.local` ne répond pas, trouvez l'adresse IP du Pi dans l'interface de votre box (liste des appareils connectés) et utilisez :
