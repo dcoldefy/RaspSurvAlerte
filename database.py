@@ -8,7 +8,7 @@ from datetime import datetime
 
 from config import DB_FILE, DEDUP_WINDOW
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 def init_db():
@@ -34,6 +34,11 @@ def init_db():
                 nom TEXT NOT NULL,
                 prenom TEXT NOT NULL,
                 created_at TEXT NOT NULL)""")
+
+        if current < 3:
+            c.execute("ALTER TABLE users ADD COLUMN adresse TEXT NOT NULL DEFAULT ''")
+            c.execute("ALTER TABLE users ADD COLUMN code_postal TEXT NOT NULL DEFAULT ''")
+            c.execute("ALTER TABLE users ADD COLUMN ville TEXT NOT NULL DEFAULT ''")
 
         if current < SCHEMA_VERSION:
             c.execute("DELETE FROM schema_version")
@@ -124,23 +129,23 @@ def clear_db():
 
 # ── Utilisateurs ───────────────────────────────────────────────────────────
 
-def create_user(nom, prenom):
+def create_user(nom, prenom, adresse, code_postal, ville):
     """Crée un utilisateur, retourne le token généré."""
     token = secrets.token_urlsafe(32)
     created_at = datetime.now().strftime("%Y-%m-%d %H:%M")
     with sqlite3.connect(DB_FILE) as conn:
         conn.execute(
-            "INSERT INTO users (token, nom, prenom, created_at) VALUES (?, ?, ?, ?)",
-            (token, nom, prenom, created_at),
+            "INSERT INTO users (token, nom, prenom, adresse, code_postal, ville, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (token, nom, prenom, adresse, code_postal, ville, created_at),
         )
     return token
 
 
 def get_user_by_token(token):
-    """Retourne (id, token, nom, prenom, created_at) ou None."""
+    """Retourne (id, token, nom, prenom, adresse, code_postal, ville, created_at) ou None."""
     with sqlite3.connect(DB_FILE) as conn:
         return conn.execute(
-            "SELECT id, token, nom, prenom, created_at FROM users WHERE token = ?",
+            "SELECT id, token, nom, prenom, adresse, code_postal, ville, created_at FROM users WHERE token = ?",
             (token,),
         ).fetchone()
 
@@ -149,7 +154,7 @@ def list_users():
     """Retourne tous les utilisateurs triés par date de création."""
     with sqlite3.connect(DB_FILE) as conn:
         return conn.execute(
-            "SELECT id, token, nom, prenom, created_at FROM users ORDER BY created_at DESC"
+            "SELECT id, token, nom, prenom, adresse, code_postal, ville, created_at FROM users ORDER BY created_at DESC"
         ).fetchall()
 
 
