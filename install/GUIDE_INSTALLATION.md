@@ -108,17 +108,6 @@ Une fois connecté en SSH, lancez cette commande :
 curl -sSL https://raw.githubusercontent.com/dcoldefy/RaspSurvAlerte/master/install/install.sh | sudo bash
 ```
 
-Le script va vous poser une question :
-
-```
-Installer avahi-daemon ? [o/N]
-```
-
-- Répondez **`o`** pour accéder à l'interface via `http://survalerte.local:5000` (accès par nom)
-- Répondez **`N`** pour accéder uniquement par adresse IP (ex: `http://192.168.1.XXX:5000`)
-
-> Sur un réseau domestique privé, l'option `o` est recommandée pour plus de confort.
-
 Le script effectue automatiquement :
 - Mise à jour des paquets système
 - Clonage du dépôt GitHub
@@ -133,6 +122,8 @@ Le script effectue automatiquement :
 ```
 Interface web : http://192.168.1.XXX:5000
 ```
+
+> Pour accéder à l'interface depuis l'extérieur de votre réseau, des solutions avancées existent comme [Tailscale](https://tailscale.com) (gratuit).
 
 ---
 

@@ -36,52 +36,11 @@ for i in $(seq 1 30); do
     sleep 2
 done
 
-# --- Question avahi ----------------------------------------------------------
-echo ""
-echo "=============================================="
-echo -e "${YELLOW}  Accès à l'interface web${NC}"
-echo "=============================================="
-echo ""
-echo "  Accès local : les deux options fonctionnent sur votre réseau"
-echo "  domestique (wifi/ethernet)."
-echo "  Accès depuis l'extérieur : installez Tailscale sur le Pi et"
-echo "  vos appareils (https://tailscale.com, gratuit) pour accéder"
-echo "  au Pi depuis partout via son IP Tailscale (100.x.x.x)."
-echo "  Le nom survalerte.local ne fonctionne pas depuis l'extérieur."
-echo ""
-echo "  Option A — Accès par nom (ex: http://survalerte.local:5000)"
-echo "    Nécessite l'installation d'avahi-daemon, un service de"
-echo "    découverte réseau (protocole mDNS/Bonjour)."
-echo -e "    ${YELLOW}Attention :${NC} ce service ouvre un port réseau supplémentaire"
-echo "    sur le Pi. Risque faible sur un réseau domestique privé,"
-echo "    mais à éviter si votre réseau est partagé ou peu sécurisé."
-echo ""
-echo "  Option B — Accès par adresse IP (ex: http://192.168.1.106:5000)"
-echo "    Aucun service supplémentaire. Vous devrez connaître l'IP"
-echo "    du Pi (visible dans l'interface de votre box)."
-echo "    Accès réseau local uniquement, comme l'option A."
-echo ""
-read -r -p "  Installer avahi-daemon ? [o/N] : " AVAHI_CHOICE
-echo ""
-
 # --- Mise à jour système -----------------------------------------------------
 echo "Mise à jour des paquets système..."
 apt-get update -q >> "$LOG" 2>&1
 apt-get install -y git python3 python3-pip python3-venv >> "$LOG" 2>&1
 ok "Paquets système installés"
-
-# --- Avahi (optionnel) -------------------------------------------------------
-INSTALL_AVAHI=false
-if [[ "$AVAHI_CHOICE" =~ ^[oO]$ ]]; then
-    echo "Installation d'avahi-daemon..."
-    apt-get install -y avahi-daemon >> "$LOG" 2>&1
-    systemctl enable avahi-daemon >> "$LOG" 2>&1
-    systemctl start avahi-daemon >> "$LOG" 2>&1
-    ok "avahi-daemon installé — accès via http://$(hostname).local:5000"
-    INSTALL_AVAHI=true
-else
-    warn "avahi-daemon non installé — accès par adresse IP uniquement"
-fi
 
 # --- Clonage du dépôt --------------------------------------------------------
 echo ""
@@ -144,13 +103,12 @@ echo -e "${GREEN}  Installation terminée avec succès !${NC}"
 echo "=============================================="
 echo ""
 echo "  Interface web : http://$IP:5000"
-if [ "$INSTALL_AVAHI" = true ]; then
-echo "  Ou via nom    : http://$HOSTNAME.local:5000"
-fi
 echo ""
 echo "  Logs service  : journalctl -u survalerte -f"
 echo "  Redémarrer    : sudo systemctl restart survalerte"
 echo ""
 echo "  Prochaine étape : ouvrez l'interface et"
 echo "  renseignez votre profil dans Réglages."
+echo ""
+echo "  Accès depuis l'extérieur : voir https://tailscale.com"
 echo "=============================================="
