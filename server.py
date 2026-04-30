@@ -182,7 +182,8 @@ def admin_users():
     if not session.get('is_admin'):
         return redirect(url_for('login'))
     users = list_users()
-    base_url = request.host_url.rstrip('/')
+    scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
+    base_url = f"{scheme}://{request.host}"
     return render_template('admin_users.html', users=users, base_url=base_url)
 
 
