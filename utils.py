@@ -21,6 +21,11 @@ def fmt_dist(d):
     return f"{d:.1f} km" if d is not None else "—"
 
 
+def fmt_heure(h):
+    """Formate un float heure (ex: 0.5 → '00h30', 22.0 → '22h00')."""
+    return f"{int(h):02d}h{'30' if h % 1 else '00'}"
+
+
 def fmt_alt(alt):
     return f"{alt:,} m".replace(",", "\u202f") if alt is not None else "-"
 
@@ -87,7 +92,7 @@ def get_seuil_display(code, msg):
         if m:
             parts.append(f"< {m.group(1)} m")
     if "NUIT" in code:
-        m = re.search(r'\((\d+)h-(\d+)h\)', msg)
+        m = re.search(r'\((\d+h\d+)-(\d+h\d+)\)', msg)
         if m:
-            parts.append(f"{m.group(1)}h – {m.group(2)}h")
+            parts.append(f"{m.group(1)} – {m.group(2)}")
     return " · ".join(parts)
