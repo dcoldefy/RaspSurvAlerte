@@ -1,5 +1,6 @@
 flask
 requests
-FlightRadar24
+FlightRadarAPI
+beautifulsoup4
 reportlab
 python-docx

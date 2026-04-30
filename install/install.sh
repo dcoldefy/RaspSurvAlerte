@@ -98,8 +98,8 @@ fi
 echo ""
 echo "Installation des dépendances Python..."
 pip3 install --break-system-packages \
-    flask requests FlightRadar24 reportlab python-docx 2>&1 | tee -a "$LOG"
-python3 -c "import flask, requests, FlightRadar24, reportlab, docx" \
+    flask requests FlightRadarAPI beautifulsoup4 reportlab python-docx 2>&1 | tee -a "$LOG"
+python3 -c "import flask, requests, FlightRadar24, bs4, reportlab, docx" \
     || fail "Une dépendance Python n'a pas été installée correctement. Vérifiez le log : $LOG"
 ok "Dépendances Python installées"
 
@@ -107,7 +107,8 @@ ok "Dépendances Python installées"
 cat > "$APP_DIR/requirements.txt" << 'EOF'
 flask
 requests
-FlightRadar24
+FlightRadarAPI
+beautifulsoup4
 reportlab
 python-docx
 EOF
