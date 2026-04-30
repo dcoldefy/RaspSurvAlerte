@@ -92,7 +92,10 @@ def analyser_infraction(alt_m, heure_str, au_sol, cfg):
     try:
         parts = heure_str.split(":")
         t = int(parts[0]) + int(parts[1]) / 60
-        infr_nuit = (t >= nuit_deb or t < nuit_fin)
+        if nuit_deb < nuit_fin:  # plage dans la même journée (ex: 00h30→05h00)
+            infr_nuit = (nuit_deb <= t < nuit_fin)
+        else:                    # plage traversant minuit (ex: 22h00→06h00)
+            infr_nuit = (t >= nuit_deb or t < nuit_fin)
     except Exception:
         infr_nuit = False
 
