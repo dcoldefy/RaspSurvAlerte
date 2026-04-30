@@ -8,7 +8,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}?v={{ css_version }}">
   <link rel="icon" type="image/svg+xml" href="/static/icons/icon.svg">
-  <link rel="manifest" href="/static/manifest.json">
+  <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#1a3a5c">
   <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
 </head>
@@ -42,6 +42,9 @@
         </li>
       </ul>
 
+      <button id="btn-install" class="btn btn-sm btn-outline-light me-2 d-none">
+        <i class="bi bi-download me-1"></i>Installer
+      </button>
       <span id="nav-status" class="navbar-text d-flex align-items-center gap-2 small">
         <span id="status-dot" class="status-dot status-wait"></span>
         <span id="status-text" class="text-light opacity-75">Initialisation…</span>
@@ -67,6 +70,22 @@
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('/sw.js');
   }
+  let _installPrompt = null;
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    _installPrompt = e;
+    document.getElementById('btn-install').classList.remove('d-none');
+  });
+  document.getElementById('btn-install').addEventListener('click', async () => {
+    if (!_installPrompt) return;
+    _installPrompt.prompt();
+    const { outcome } = await _installPrompt.userChoice;
+    if (outcome === 'accepted') document.getElementById('btn-install').classList.add('d-none');
+    _installPrompt = null;
+  });
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('btn-install').classList.add('d-none');
+  });
 </script>
 </body>
 </html>
