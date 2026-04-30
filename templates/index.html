@@ -24,7 +24,7 @@
         <div class="stat-value" id="s-infr">{{ stats.infractions }}</div>
         <div class="stat-label">Infractions détectées</div>
         <span class="seuil-card-link">
-          Réglages actuels : altitude {{ cfg.alt_min_legale }} m et vol nocturne : {{ fmt_heure(cfg.heure_nuit_deb) }} – {{ fmt_heure(cfg.heure_nuit_fin) }}
+          Altitude &lt; {{ cfg.alt_min_legale }} m &nbsp;/&nbsp; vol nocturne {{ fmt_heure(cfg.heure_nuit_deb) }} – {{ fmt_heure(cfg.heure_nuit_fin) }}
         </span>
       </div>
     </div>
