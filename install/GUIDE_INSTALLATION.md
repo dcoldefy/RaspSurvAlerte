@@ -129,17 +129,11 @@ Interface web : http://192.168.1.XXX:5000
 
 ## Étape 5 — Configuration initiale
 
-Ouvrez votre navigateur et accédez à l'interface :
+Ouvrez votre navigateur et accédez à l'interface en utilisant l'adresse IP affichée à la fin de l'installation :
 
-```
-http://survalerte.local:5000
-```
-ou par IP :
 ```
 http://192.168.1.XXX:5000
 ```
-
-> **Note Windows :** l'accès par nom (`survalerte.local`) ne fonctionne pas nativement sur Windows — utilisez l'adresse IP directe. Sur Mac, iPhone et Android, l'accès par nom fonctionne sans rien installer.
 
 Cliquez sur **Réglages** et renseignez les informations suivantes :
 
@@ -187,5 +181,4 @@ cd ~/survalerte && git pull && sudo systemctl restart survalerte
 | Interface inaccessible | `sudo systemctl restart survalerte` |
 | Erreur scan FR24 | Vérifier la connexion internet : `curl https://google.com` |
 | SSH timeout au premier démarrage | Attendre 2 minutes et réessayer, ou débrancher/rebrancher le Pi |
-| `survalerte.local` inaccessible sur Windows | Utiliser l'adresse IP directe |
 | SSH refuse la connexion | Trouver l'IP du Pi dans l'interface de votre box |
