@@ -39,7 +39,7 @@ done
 # --- Mise à jour système -----------------------------------------------------
 echo "Mise à jour des paquets système..."
 apt-get update -q >> "$LOG" 2>&1
-apt-get install -y git python3 python3-pip python3-venv >> "$LOG" 2>&1
+apt-get install -y git python3 python3-pip python3-venv libopenjp2-7 >> "$LOG" 2>&1
 ok "Paquets système installés"
 
 # --- Clonage du dépôt --------------------------------------------------------
