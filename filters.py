@@ -90,16 +90,20 @@ def analyser_infraction(alt_m, heure_str, au_sol, cfg):
 
     infr_alt = (alt_m is not None and alt_m < alt_min)
     try:
-        hh = int(heure_str.split(":")[0])
-        infr_nuit = (hh >= nuit_deb or hh < nuit_fin)
+        parts = heure_str.split(":")
+        t = int(parts[0]) + int(parts[1]) / 60
+        infr_nuit = (t >= nuit_deb or t < nuit_fin)
     except Exception:
         infr_nuit = False
+
+    def _fh(h):
+        return f"{int(h)}h{'30' if h % 1 else '00'}"
 
     if infr_alt and infr_nuit:
         return "ALT+NUIT", (
             f"DOUBLE INFRACTION : altitude {alt_m} m sous le minimum légal"
             f" de {alt_min} m ET vol à {heure_str} hors plage autorisée CDG"
-            f" ({nuit_deb}h-{nuit_fin}h)")
+            f" ({_fh(nuit_deb)}-{_fh(nuit_fin)})")
     if infr_alt:
         return "ALT", (
             f"Altitude {alt_m} m inférieure au minimum légal"
@@ -107,5 +111,5 @@ def analyser_infraction(alt_m, heure_str, au_sol, cfg):
     if infr_nuit:
         return "NUIT", (
             f"Vol à {heure_str} : restriction nocturne CDG"
-            f" ({nuit_deb}h-{nuit_fin}h)")
+            f" ({_fh(nuit_deb)}-{_fh(nuit_fin)})")
     return None, ""

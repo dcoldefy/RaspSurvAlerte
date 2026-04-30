@@ -270,8 +270,8 @@ def save_profil():
 def save_seuils():
     cfg = config.load()
     cfg["alt_min_legale"] = max(0, int(request.form.get("alt_min_legale", 1000)))
-    cfg["heure_nuit_deb"] = max(0, min(23, int(request.form.get("heure_nuit_deb", 22))))
-    cfg["heure_nuit_fin"] = max(0, min(23, int(request.form.get("heure_nuit_fin", 6))))
+    cfg["heure_nuit_deb"] = max(0, min(23.5, float(request.form.get("heure_nuit_deb", 22))))
+    cfg["heure_nuit_fin"] = max(0, min(23.5, float(request.form.get("heure_nuit_fin", 6))))
     cfg["rayon_km"]       = max(1, min(50, int(request.form.get("rayon_km", 3))))
     config.save(cfg)
     return redirect(url_for("reglages") + "?ok=seuils")
