@@ -74,7 +74,9 @@ La durée est de **5 à 10 minutes** selon votre connexion internet.
 
 Une fois le flash terminé, éjectez proprement la carte SD depuis Windows (clic droit sur le lecteur → **Éjecter**), insérez-la dans le Raspberry Pi et branchez l'alimentation.
 
-Attendez **60 à 90 secondes** le temps que le Pi démarre et se connecte à votre wifi.
+Attendez **2 à 3 minutes** le temps que le Pi démarre et se connecte à votre wifi. Sur un Pi 3, le premier démarrage peut prendre plus de temps que les suivants — soyez patient.
+
+> Si la connexion SSH échoue, attendez encore une minute et réessayez.
 
 ---
 
