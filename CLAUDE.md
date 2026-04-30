@@ -22,6 +22,19 @@ sudo systemctl restart survalerte
 journalctl -u survalerte -f
 ```
 
+## Tailscale Funnel (Raspberry Pi — à configurer une fois)
+
+RaspSurAlerte est exposé sur le port public **10000** (HTTPS géré par Tailscale) :
+
+```bash
+tailscale funnel --bg --https=10000 http://localhost:5000
+# Vérifier : tailscale funnel status
+```
+
+URL : `https://survalerte.tail57ebcb.ts.net:10000/`
+
+> Flask tourne en HTTP pur (`ssl_context=None`). Le HTTPS est entièrement géré par Tailscale Funnel. Ne pas réactiver `ssl_context` dans `server.py`.
+
 ## Architecture
 
 Le projet est une application Flask mono-fichier `server.py` avec un thread de scan en arrière-plan. Voici comment les modules s'articulent :
