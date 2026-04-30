@@ -148,6 +148,10 @@ Cliquez sur **Réglages** et renseignez les informations suivantes :
 - Plage horaire nocturne (défaut : 00h30 – 05h00)
 - Rayon de surveillance (défaut : 3 km)
 
+**Source de données :**
+- Source : `FlightRadar24` _(sélectionné par défaut)_
+- Compte OpenSky : laisser vide
+
 Cliquez sur **Enregistrer**. Le scanner démarre automatiquement et interroge FlightRadar24 toutes les 60 secondes.
 
 ---
