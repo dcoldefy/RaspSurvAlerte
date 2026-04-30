@@ -6,7 +6,7 @@ import json
 import os
 
 # Chemins fixes
-APP_TITLE     = "RaspSurAlert"
+APP_TITLE     = "SurValerte"
 DB_FILE       = os.path.expanduser("~/survalerte.db")
 CONFIG_PATH   = os.path.expanduser("~/.survalerte/config.json")
 SCAN_INTERVAL = 60
