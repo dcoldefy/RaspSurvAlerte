@@ -12,17 +12,32 @@
       </div>
       <div class="card-body">
         <form method="POST" action="/admin/users/create" class="row g-2 align-items-end">
-          <div class="col-sm-4">
+          <div class="col-sm-3">
             <label class="form-label fw-semibold small">Prénom</label>
             <input type="text" name="prenom" class="form-control" placeholder="Prénom" required>
           </div>
-          <div class="col-sm-4">
+          <div class="col-sm-3">
             <label class="form-label fw-semibold small">Nom</label>
             <input type="text" name="nom" class="form-control" placeholder="NOM" required>
           </div>
+          <div class="col-sm-6">
+            <label class="form-label fw-semibold small">Adresse</label>
+            <input type="text" name="adresse" class="form-control" placeholder="123 rue de la Paix">
+          </div>
+          <div class="col-sm-2">
+            <label class="form-label fw-semibold small">Code postal</label>
+            <input type="text" name="code_postal" class="form-control" id="cp-new"
+                   placeholder="78000" maxlength="5">
+          </div>
           <div class="col-sm-4">
+            <label class="form-label fw-semibold small">Commune</label>
+            <input type="text" name="ville" class="form-control" id="ville-new"
+                   placeholder="Conflans-Sainte-Honorine" list="communes-new-list">
+            <datalist id="communes-new-list"></datalist>
+          </div>
+          <div class="col-sm-6">
             <button type="submit" class="btn btn-primary w-100">
-              <i class="bi bi-plus-circle me-1"></i>Créer
+              <i class="bi bi-plus-circle me-1"></i>Créer l'utilisateur
             </button>
           </div>
         </form>
@@ -54,7 +69,7 @@
                      value="{{ base_url }}/?token={{ user[1] }}"
                      readonly onclick="this.select()">
             </td>
-            <td class="text-muted small">{{ user[4] }}</td>
+            <td class="text-muted small">{{ user[7] }}</td>
             <td>
               <form method="POST" action="/admin/users/{{ user[0] }}/delete"
                     onsubmit="return confirm('Supprimer {{ user[3] }} {{ user[2] }} ?')">
@@ -75,4 +90,32 @@
 
   </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const cpNew    = document.getElementById('cp-new');
+const villeNew = document.getElementById('ville-new');
+const dlNew    = document.getElementById('communes-new-list');
+let   cpTimer  = null;
+
+cpNew.addEventListener('input', () => {
+  clearTimeout(cpTimer);
+  const cp = cpNew.value.trim();
+  if (cp.length !== 5) return;
+  cpTimer = setTimeout(() => {
+    fetch('/api/communes?cp=' + encodeURIComponent(cp))
+      .then(r => r.json())
+      .then(noms => {
+        dlNew.innerHTML = '';
+        noms.forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n;
+          dlNew.appendChild(opt);
+        });
+        if (noms.length === 1) villeNew.value = noms[0];
+      });
+  }, 400);
+});
+</script>
 {% endblock %}

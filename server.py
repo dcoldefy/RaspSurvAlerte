@@ -77,6 +77,23 @@ def _access_level():
     return None
 
 
+def _get_profil():
+    """Retourne le profil à utiliser : celui de l'utilisateur connecté ou le profil global."""
+    token = session.get('user_token', '')
+    if token:
+        user = get_user_by_token(token)
+        if user:
+            # (id, token, nom, prenom, adresse, code_postal, ville, created_at)
+            return {
+                "nom":         user[2],
+                "prenom":      user[3],
+                "adresse":     user[4],
+                "code_postal": user[5],
+                "ville":       user[6],
+            }
+    return config.load().get("profil", {})
+
+
 # ── Helpers Jinja2 ─────────────────────────────────────────────────────────
 
 app.jinja_env.globals.update(
@@ -173,10 +190,13 @@ def admin_users():
 def create_user_route():
     if not session.get('is_admin'):
         return redirect(url_for('login'))
-    nom    = request.form.get('nom', '').strip().upper()
-    prenom = request.form.get('prenom', '').strip().capitalize()
+    nom         = request.form.get('nom', '').strip().upper()
+    prenom      = request.form.get('prenom', '').strip().capitalize()
+    adresse     = request.form.get('adresse', '').strip()
+    code_postal = request.form.get('code_postal', '').strip()
+    ville       = request.form.get('ville', '').strip().upper()
     if nom and prenom:
-        create_user(nom, prenom)
+        create_user(nom, prenom, adresse, code_postal, ville)
     return redirect(url_for('admin_users'))
 
 
@@ -275,9 +295,9 @@ def api_communes():
 
 @app.route("/api/destinataires")
 def api_destinataires():
-    cfg   = config.load()
-    ville = cfg["profil"].get("ville", "")
-    cp    = cfg["profil"].get("code_postal", "")
+    profil = _get_profil()
+    ville  = profil.get("ville", "")
+    cp     = profil.get("code_postal", "")
     result = []
     for d in DESTINATAIRES:
         if d["nom"] is None:
@@ -303,8 +323,7 @@ def api_plainte():
     except (TypeError, ValueError):
         dest_idx = 0
 
-    cfg    = config.load()
-    profil = cfg.get("profil", {})
+    profil = _get_profil()
 
     if not profil.get("nom") or not profil.get("prenom"):
         return jsonify({"error": "Profil incomplet — renseignez votre nom et prénom dans les Réglages."}), 400
