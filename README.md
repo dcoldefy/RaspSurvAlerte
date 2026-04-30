@@ -1,5 +1,7 @@
 # RaspSurAlert
 
+📖 **[Guide d'installation complet pour débutants](install/GUIDE_INSTALLATION.md)**
+
 Surveillance aérienne locale sur Raspberry Pi — détecte les vols commerciaux survolant votre domicile et signale les infractions réglementaires (altitude trop basse, vol nocturne CDG).
 
 ## Fonctionnement
