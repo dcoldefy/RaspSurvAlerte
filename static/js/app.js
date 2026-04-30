@@ -53,11 +53,8 @@ function updateStatus() {
         dotClass = data.last_error_type === 'rate_limit' ? 'status-warn' : 'status-err';
       }
       dot.className = 'status-dot ' + dotClass;
-      let statusTxt = data.status;
-      if (data.opensky_credits !== null && data.opensky_credits !== undefined) {
-        statusTxt += ` · ${data.opensky_credits} crédits restants`;
-      }
-      text.textContent = statusTxt;
+      const sourceLabel = data.source === 'opensky' ? 'OpenSky' : 'FlightRadar24';
+      text.textContent = sourceLabel;
     })
     .catch(() => {
       const dot = document.getElementById('status-dot');

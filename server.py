@@ -254,6 +254,7 @@ def api_status():
         else:
             countdown = f"{s}s"
         status = f"{status} — réessai dans {countdown}"
+    cfg = config.load()
     return jsonify({
         "status":           status,
         "status_ok":        st["status_ok"],
@@ -262,6 +263,7 @@ def api_status():
         "error_count":      st["error_count"],
         "last_error_type":  st["last_error_type"],
         "opensky_credits":  st.get("opensky_credits"),
+        "source":           cfg.get("source", "flightradar24"),
     })
 
 
