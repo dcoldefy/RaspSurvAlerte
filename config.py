@@ -6,7 +6,7 @@ import json
 import os
 
 # Chemins fixes
-APP_TITLE     = "SurValerte"
+APP_TITLE     = "SurvAlerte"
 DB_FILE       = os.path.expanduser("~/survalerte.db")
 CONFIG_PATH   = os.path.expanduser("~/.survalerte/config.json")
 SCAN_INTERVAL = 60
@@ -27,6 +27,8 @@ DEFAULTS = {
     "opensky_user": "",
     "opensky_pass": "",
     "source": "flightradar24",
+    "admin_password_hash": "",
+    "secret_key": "",
     "profil": {
         "nom": "",
         "prenom": "",

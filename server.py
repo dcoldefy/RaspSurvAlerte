@@ -3,11 +3,14 @@ Serveur Flask — interface web RaspSurAlert.
 Lance le scanner au démarrage, sert le dashboard et les réglages.
 """
 import re
+import secrets as _secrets
 import signal
-from flask import Flask, render_template, jsonify, request, redirect, url_for, Response
+from flask import Flask, render_template, jsonify, request, redirect, url_for, Response, session
+from werkzeug.security import check_password_hash, generate_password_hash
 
 import config
-from database import init_db, load_all, clear_db, get_stats
+from database import (init_db, load_all, clear_db, get_stats,
+                      create_user, get_user_by_token, list_users, delete_user)
 from api import chercher_communes, chercher_coordonnees_commune
 from scanner import Scanner
 from utils import fmt_alt, fmt_val, fmt_dist, fmt_pays, fmt_heure, get_code, get_css_class, get_badge, get_seuil_display, distance_km
@@ -42,10 +45,36 @@ DESTINATAIRES = [
 ]
 
 import time
-app     = Flask(__name__)
+app = Flask(__name__)
 app.jinja_env.globals['css_version'] = int(time.time())
-init_db()   # garantit que la table existe avant toute requête HTTP
+
+# Clé secrète pour les sessions (générée une fois, stockée dans config)
+_cfg_init = config.load()
+if not _cfg_init.get('secret_key'):
+    _cfg_init['secret_key'] = _secrets.token_hex(32)
+    config.save(_cfg_init)
+app.secret_key = _cfg_init['secret_key']
+
+init_db()
 scanner = Scanner()
+
+
+# ── Auth ───────────────────────────────────────────────────────────────────
+
+@app.context_processor
+def inject_auth():
+    return {'is_admin': bool(session.get('is_admin'))}
+
+
+def _access_level():
+    """Retourne 'admin', 'user' ou None."""
+    if session.get('is_admin'):
+        return 'admin'
+    token = request.args.get('token', '').strip() or session.get('user_token', '')
+    if token and get_user_by_token(token):
+        session['user_token'] = token
+        return 'user'
+    return None
 
 
 # ── Helpers Jinja2 ─────────────────────────────────────────────────────────
@@ -76,22 +105,79 @@ def manifest():
     return app.send_static_file("manifest.json"), 200, {"Content-Type": "application/manifest+json"}
 
 
+# ── Auth routes ────────────────────────────────────────────────────────────
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    cfg = config.load()
+    password_hash = cfg.get('admin_password_hash', '')
+    first_time = not password_hash
+
+    if request.method == "POST":
+        password = request.form.get('password', '').strip()
+        if first_time:
+            if len(password) >= 4:
+                cfg['admin_password_hash'] = generate_password_hash(password)
+                config.save(cfg)
+                session['is_admin'] = True
+                return redirect(url_for('index'))
+            return render_template('login.html', first_time=True,
+                                   error="Mot de passe trop court (4 caractères minimum).")
+        if check_password_hash(password_hash, password):
+            session['is_admin'] = True
+            return redirect(url_for('index'))
+        return render_template('login.html', first_time=False,
+                               error="Mot de passe incorrect.")
+
+    return render_template('login.html', first_time=first_time)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for('login'))
+
+
 # ── Pages ──────────────────────────────────────────────────────────────────
 
 @app.route("/")
 def index():
+    access = _access_level()
+    if access is None:
+        return redirect(url_for('login'))
     cfg   = config.load()
     rows  = load_all()
     stats = get_stats()
     state = scanner.get_state()
-    return render_template("index.html",
-                           cfg=cfg, rows=rows, stats=stats, state=state)
+    return render_template("index.html", cfg=cfg, rows=rows, stats=stats, state=state)
 
 
 @app.route("/reglages")
 def reglages():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
     cfg = config.load()
     return render_template("reglages.html", cfg=cfg)
+
+
+@app.route("/admin/users")
+def admin_users():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+    users = list_users()
+    base_url = request.host_url.rstrip('/')
+    return render_template('admin_users.html', users=users, base_url=base_url)
+
+
+@app.route("/admin/users/create", methods=["POST"])
+def create_user_route():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+    nom    = request.form.get('nom', '').strip().upper()
+    prenom = request.form.get('prenom', '').strip().capitalize()
+    if nom and prenom:
+        create_user(nom, prenom)
+    return redirect(url_for('admin_users'))
 
 
 # ── API JSON ───────────────────────────────────────────────────────────────
@@ -254,6 +340,8 @@ def api_plainte():
 
 @app.route("/reglages/profil", methods=["POST"])
 def save_profil():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
     cfg = config.load()
     cp  = request.form.get("code_postal", "").strip()
     vil = request.form.get("ville", "").strip().upper()
@@ -274,6 +362,8 @@ def save_profil():
 
 @app.route("/reglages/seuils", methods=["POST"])
 def save_seuils():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
     cfg = config.load()
     cfg["alt_min_legale"] = max(0, int(request.form.get("alt_min_legale", 1000)))
     cfg["heure_nuit_deb"] = max(0, min(23.5, float(request.form.get("heure_nuit_deb", 22))))
@@ -285,6 +375,8 @@ def save_seuils():
 
 @app.route("/reglages/source", methods=["POST"])
 def save_source():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
     cfg = config.load()
     source = request.form.get("source", "flightradar24")
     if source in ("opensky", "flightradar24"):
@@ -295,6 +387,8 @@ def save_source():
 
 @app.route("/reglages/opensky", methods=["POST"])
 def save_opensky():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
     cfg = config.load()
     cfg["opensky_user"] = request.form.get("opensky_user", "").strip()
     cfg["opensky_pass"] = request.form.get("opensky_pass", "")
@@ -302,8 +396,30 @@ def save_opensky():
     return redirect(url_for("reglages") + "?ok=opensky")
 
 
+@app.route("/admin/users/<int:user_id>/delete", methods=["POST"])
+def delete_user_route(user_id):
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+    delete_user(user_id)
+    return redirect(url_for('admin_users'))
+
+
+@app.route("/reglages/password", methods=["POST"])
+def save_password():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+    cfg = config.load()
+    password = request.form.get('password', '').strip()
+    if len(password) >= 4:
+        cfg['admin_password_hash'] = generate_password_hash(password)
+        config.save(cfg)
+    return redirect(url_for('reglages') + "?ok=password")
+
+
 @app.route("/effacer", methods=["POST"])
 def effacer():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
     clear_db()
     scanner.clear_flights()
     return redirect(url_for("index"))

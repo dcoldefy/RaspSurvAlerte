@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git push *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git add *)",
+      "Bash(ssh david@192.168.1.106 \"pip3 list 2>/dev/null | grep -i flight\")",
+      "Bash(git checkout *)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\david\\.claude\\projects\\c--Users-david-OneDrive-DAVID-CLAUDE-FODMAP-V2\\memory",
+      "C:\\Users\\david\\.claude\\projects\\c--Users-david-OneDrive-DAVID-CLAUDE-ESCRIME\\memory",
+      "c:\\Users\\david\\OneDrive\\DAVID\\CLAUDE\\ESCRIME",
+      "c:\\Users\\david\\OneDrive\\DAVID\\CLAUDE\\FODMAP V2"
+    ]
+  }
+}

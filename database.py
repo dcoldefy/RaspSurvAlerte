@@ -1,12 +1,14 @@
 """
-Couche base de données SQLite — création, lecture, écriture des survols.
+Couche base de données SQLite — création, lecture, écriture des survols et utilisateurs.
 """
+import secrets
 import sqlite3
 import time
+from datetime import datetime
 
 from config import DB_FILE, DEDUP_WINDOW
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def init_db():
@@ -25,9 +27,13 @@ def init_db():
         row = c.execute("SELECT version FROM schema_version").fetchone()
         current = row[0] if row else 0
 
-        # Migrations futures :
-        # if current < 2:
-        #     c.execute("ALTER TABLE survols ADD COLUMN type_avion TEXT")
+        if current < 2:
+            c.execute("""CREATE TABLE IF NOT EXISTS users (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                token TEXT UNIQUE NOT NULL,
+                nom TEXT NOT NULL,
+                prenom TEXT NOT NULL,
+                created_at TEXT NOT NULL)""")
 
         if current < SCHEMA_VERSION:
             c.execute("DELETE FROM schema_version")
@@ -114,3 +120,39 @@ def clear_db():
     with sqlite3.connect(DB_FILE) as conn:
         conn.cursor().execute("DELETE FROM survols")
         conn.commit()
+
+
+# ── Utilisateurs ───────────────────────────────────────────────────────────
+
+def create_user(nom, prenom):
+    """Crée un utilisateur, retourne le token généré."""
+    token = secrets.token_urlsafe(32)
+    created_at = datetime.now().strftime("%Y-%m-%d %H:%M")
+    with sqlite3.connect(DB_FILE) as conn:
+        conn.execute(
+            "INSERT INTO users (token, nom, prenom, created_at) VALUES (?, ?, ?, ?)",
+            (token, nom, prenom, created_at),
+        )
+    return token
+
+
+def get_user_by_token(token):
+    """Retourne (id, token, nom, prenom, created_at) ou None."""
+    with sqlite3.connect(DB_FILE) as conn:
+        return conn.execute(
+            "SELECT id, token, nom, prenom, created_at FROM users WHERE token = ?",
+            (token,),
+        ).fetchone()
+
+
+def list_users():
+    """Retourne tous les utilisateurs triés par date de création."""
+    with sqlite3.connect(DB_FILE) as conn:
+        return conn.execute(
+            "SELECT id, token, nom, prenom, created_at FROM users ORDER BY created_at DESC"
+        ).fetchall()
+
+
+def delete_user(user_id):
+    with sqlite3.connect(DB_FILE) as conn:
+        conn.execute("DELETE FROM users WHERE id = ?", (user_id,))

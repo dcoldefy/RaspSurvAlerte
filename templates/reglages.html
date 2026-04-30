@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Réglages — RaspSurAlert{% endblock %}
+{% block title %}Réglages — SurvAlerte{% endblock %}
 
 {% block content %}
 
@@ -22,6 +22,11 @@
 {% elif ok == 'source' %}
   <div class="alert alert-success alert-dismissible fade show" role="alert">
     <i class="bi bi-check-circle-fill me-2"></i>Source de données mise à jour.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
+{% elif ok == 'password' %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>Mot de passe admin mis à jour.
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
 {% endif %}
@@ -225,6 +230,28 @@
           </div>
           <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-floppy-fill me-1"></i>Enregistrer
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carte mot de passe admin -->
+  <div class="col-lg-6">
+    <div class="card shadow-sm h-100">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="bi bi-shield-lock-fill text-primary"></i>
+        <strong>Mot de passe admin</strong>
+      </div>
+      <div class="card-body">
+        <form method="post" action="/reglages/password">
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Nouveau mot de passe</label>
+            <input type="password" class="form-control" name="password"
+                   placeholder="4 caractères minimum" required minlength="4">
+          </div>
+          <button type="submit" class="btn btn-primary w-100">
+            <i class="bi bi-floppy-fill me-1"></i>Changer le mot de passe
           </button>
         </form>
       </div>
