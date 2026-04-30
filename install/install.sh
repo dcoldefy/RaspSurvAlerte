@@ -128,9 +128,9 @@ ok "Service survalerte activé et démarré"
 
 # --- Cron reboot quotidien ---------------------------------------------------
 echo ""
-echo "Configuration du reboot automatique quotidien à 3h..."
-(crontab -l 2>/dev/null | grep -v "/sbin/reboot"; echo "0 3 * * * /sbin/reboot") | crontab -
-ok "Reboot quotidien à 3h00 configuré"
+echo "Configuration du reboot automatique quotidien à 15h..."
+(crontab -l 2>/dev/null | grep -v "/sbin/reboot"; echo "0 15 * * * /sbin/reboot") | crontab -
+ok "Reboot quotidien à 15h00 configuré"
 
 # --- Résumé ------------------------------------------------------------------
 IP=$(hostname -I | awk '{print $1}')

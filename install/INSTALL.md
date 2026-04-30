@@ -53,7 +53,7 @@ Le script effectue automatiquement :
 - Clonage du dépôt GitHub
 - Installation des dépendances Python (Flask, FlightRadar24, ReportLab…)
 - Configuration du service systemd (démarrage automatique)
-- Configuration du reboot quotidien à 3h du matin
+- Configuration du reboot quotidien à 15h
 
 Durée estimée : 3 à 5 minutes.
 
