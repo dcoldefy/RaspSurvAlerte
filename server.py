@@ -63,6 +63,13 @@ app.jinja_env.globals.update(
 )
 
 
+# ── PWA ────────────────────────────────────────────────────────────────────
+
+@app.route("/sw.js")
+def service_worker():
+    return app.send_static_file("sw.js"), 200, {"Content-Type": "application/javascript"}
+
+
 # ── Pages ──────────────────────────────────────────────────────────────────
 
 @app.route("/")

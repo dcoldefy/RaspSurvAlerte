@@ -1,0 +1,30 @@
+{
+  "name": "RaspSurAlert",
+  "short_name": "RaspSurAlert",
+  "description": "Surveillance aérienne locale",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#122840",
+  "theme_color": "#1a3a5c",
+  "icons": [
+    {
+      "src": "/static/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/static/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/static/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
