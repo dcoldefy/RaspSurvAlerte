@@ -73,6 +73,20 @@
               <datalist id="communes-list"></datalist>
             </div>
           </div>
+          <div class="mb-3">
+            <label class="form-label fw-semibold">Député(e) de ma circonscription</label>
+            <div class="input-group">
+              <select class="form-select" name="depute_civilite" style="max-width:80px;">
+                <option value="M."  {% if cfg.profil.depute_civilite == 'M.'  or not cfg.profil.depute_civilite %}selected{% endif %}>M.</option>
+                <option value="Mme" {% if cfg.profil.depute_civilite == 'Mme' %}selected{% endif %}>Mme</option>
+              </select>
+              <input type="text" class="form-control" name="depute_nom"
+                     value="{{ cfg.profil.depute_nom or '' }}"
+                     placeholder="Prénom NOM">
+            </div>
+            <div class="form-text">Laisser vide pour ne pas inclure comme destinataire de plainte.</div>
+          </div>
+
           {% if cfg.lat and cfg.lon %}
           <div class="mb-3">
             <small class="text-muted">

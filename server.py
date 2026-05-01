@@ -42,6 +42,12 @@ DESTINATAIRES = [
         "adresse":  None,
         "cp_ville": None,
     },
+    {
+        "label":    "Député(e) de ma circonscription",
+        "nom":      "DEPUTE",   # Rempli dynamiquement depuis le profil
+        "adresse":  None,
+        "cp_ville": None,
+    },
 ]
 
 import time
@@ -83,13 +89,15 @@ def _get_profil():
     if token:
         user = get_user_by_token(token)
         if user:
-            # (id, token, nom, prenom, adresse, code_postal, ville, created_at)
+            # (id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at)
             return {
-                "nom":         user[2],
-                "prenom":      user[3],
-                "adresse":     user[4],
-                "code_postal": user[5],
-                "ville":       user[6],
+                "nom":             user[2],
+                "prenom":          user[3],
+                "adresse":         user[4],
+                "code_postal":     user[5],
+                "ville":           user[6],
+                "depute_civilite": user[7],
+                "depute_nom":      user[8],
             }
     return config.load().get("profil", {})
 
@@ -191,13 +199,15 @@ def admin_users():
 def create_user_route():
     if not session.get('is_admin'):
         return redirect(url_for('login'))
-    nom         = request.form.get('nom', '').strip().upper()
-    prenom      = request.form.get('prenom', '').strip().capitalize()
-    adresse     = request.form.get('adresse', '').strip()
-    code_postal = request.form.get('code_postal', '').strip()
-    ville       = request.form.get('ville', '').strip().upper()
+    nom              = request.form.get('nom', '').strip().upper()
+    prenom           = request.form.get('prenom', '').strip().capitalize()
+    adresse          = request.form.get('adresse', '').strip()
+    code_postal      = request.form.get('code_postal', '').strip()
+    ville            = request.form.get('ville', '').strip().upper()
+    depute_civilite  = request.form.get('depute_civilite', 'M.').strip()
+    depute_nom       = request.form.get('depute_nom', '').strip()
     if nom and prenom:
-        create_user(nom, prenom, adresse, code_postal, ville)
+        create_user(nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom)
     return redirect(url_for('admin_users'))
 
 
@@ -310,6 +320,17 @@ def api_destinataires():
                 "adresse":  f"Mairie de {ville}" if ville else "",
                 "cp_ville": f"{cp} {ville}".strip(),
             })
+        elif d["nom"] == "DEPUTE":
+            depute_nom = profil.get("depute_nom", "").strip()
+            if not depute_nom:
+                continue
+            civilite = profil.get("depute_civilite", "M.")
+            result.append({
+                "label":    f"Député(e) — {depute_nom}",
+                "nom":      f"{civilite} {depute_nom}, Député(e)",
+                "adresse":  "Assemblée Nationale — 126 rue de l'Université",
+                "cp_ville": "75355 PARIS 07 SP",
+            })
         else:
             result.append({k: d[k] for k in ("label", "nom", "adresse", "cp_ville")})
     return jsonify(result)
@@ -341,6 +362,12 @@ def api_plainte():
         dest["nom"]      = f"Monsieur le Maire de {ville}"
         dest["adresse"]  = f"Mairie de {ville}"
         dest["cp_ville"] = f"{cp} {ville}".strip()
+    elif dest["nom"] == "DEPUTE":
+        depute_nom = profil.get("depute_nom", "").strip()
+        civilite   = profil.get("depute_civilite", "M.")
+        dest["nom"]      = f"{civilite} {depute_nom}, Député(e)" if depute_nom else "Député(e)"
+        dest["adresse"]  = "Assemblée Nationale — 126 rue de l'Université"
+        dest["cp_ville"] = "75355 PARIS 07 SP"
 
     try:
         pdf_bytes = generer_plainte_pdf_bytes(profil, vol, dest)
@@ -368,11 +395,13 @@ def save_profil():
     cp  = request.form.get("code_postal", "").strip()
     vil = request.form.get("ville", "").strip().upper()
     cfg["profil"] = {
-        "nom":         request.form.get("nom", "").strip().upper(),
-        "prenom":      request.form.get("prenom", "").strip().capitalize(),
-        "adresse":     request.form.get("adresse", "").strip(),
-        "code_postal": cp,
-        "ville":       vil,
+        "nom":             request.form.get("nom", "").strip().upper(),
+        "prenom":          request.form.get("prenom", "").strip().capitalize(),
+        "adresse":         request.form.get("adresse", "").strip(),
+        "code_postal":     cp,
+        "ville":           vil,
+        "depute_civilite": request.form.get("depute_civilite", "M.").strip(),
+        "depute_nom":      request.form.get("depute_nom", "").strip(),
     }
     lat, lon = chercher_coordonnees_commune(
         cp, vil, cfg.get("lat", 48.9897), cfg.get("lon", 2.0939))
