@@ -35,6 +35,18 @@
                    placeholder="Conflans-Sainte-Honorine" list="communes-new-list">
             <datalist id="communes-new-list"></datalist>
           </div>
+          <div class="col-sm-2">
+            <label class="form-label fw-semibold small">Député(e)</label>
+            <select name="depute_civilite" class="form-select">
+              <option value="M.">M.</option>
+              <option value="Mme">Mme</option>
+            </select>
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label fw-semibold small">Nom du/de la député(e)</label>
+            <input type="text" name="depute_nom" class="form-control"
+                   placeholder="Prénom NOM (facultatif)">
+          </div>
           <div class="col-sm-6">
             <button type="submit" class="btn btn-primary w-100">
               <i class="bi bi-plus-circle me-1"></i>Créer l'utilisateur
@@ -76,7 +88,7 @@
                 </button>
               </div>
             </td>
-            <td class="text-muted small">{{ user[7] }}</td>
+            <td class="text-muted small">{{ user[9] }}</td>
             <td>
               <form method="POST" action="/admin/users/{{ user[0] }}/delete"
                     onsubmit="return confirm('Supprimer {{ user[3] }} {{ user[2] }} ?')">
