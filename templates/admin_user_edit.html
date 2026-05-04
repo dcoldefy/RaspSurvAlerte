@@ -31,13 +31,13 @@
           <div class="col-12">
             <label class="form-label fw-semibold">Adresse</label>
             <input type="text" name="adresse" class="form-control"
-                   value="{{ user[4] or '' }}" placeholder="123 rue de la Paix">
+                   value="{{ user[4] or '' }}" placeholder="123 rue de la Paix" required>
           </div>
           <div class="col-sm-4">
             <label class="form-label fw-semibold">Code postal</label>
             <input type="text" name="code_postal" class="form-control"
                    id="cp-edit" value="{{ user[5] or '' }}"
-                   placeholder="78000" maxlength="5">
+                   placeholder="78000" maxlength="5" pattern="\d{5}" required>
           </div>
           <div class="col-sm-8">
             <label class="form-label fw-semibold">Commune</label>
