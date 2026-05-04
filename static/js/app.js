@@ -184,11 +184,12 @@ function pad(n) {
 
 /* ── Menu contextuel (clic droit) ─────────────────────────────────────── */
 
-let ctxMenu    = null;
-let modalEl    = null;
-let ctxVolData = null;   // données du vol en cours
-let destinataires   = [];  // liste chargée depuis l'API
-let selectedDestId  = '';  // id string du destinataire sélectionné
+let ctxMenu      = null;
+let modalEl      = null;
+let ctxVolData   = null;
+let destinataires    = [];  // chargés au démarrage
+let selectedDestId   = '';
+let pleinteMode      = 'courrier';  // 'courrier' | 'email'
 
 function hideCtxMenu() {
   if (ctxMenu) ctxMenu.style.display = 'none';
@@ -196,28 +197,29 @@ function hideCtxMenu() {
 
 function showCtxMenu(e, tr) {
   if (!ctxMenu) return;
-  const code = tr.dataset.code || '';
-
+  const code   = tr.dataset.code || '';
   const altRaw = tr.dataset.altitude;
   ctxVolData = {
-    date:        tr.dataset.date      || '',
-    heure:       tr.dataset.heure     || '',
-    indicatif:   tr.dataset.indicatif || '',
-    icao24:      tr.dataset.icao24    || '',
-    code:        code,
-    altitude_m:  altRaw !== '' && altRaw != null ? parseFloat(altRaw) : null,
+    date:       tr.dataset.date      || '',
+    heure:      tr.dataset.heure     || '',
+    indicatif:  tr.dataset.indicatif || '',
+    icao24:     tr.dataset.icao24    || '',
+    code:       code,
+    altitude_m: altRaw !== '' && altRaw != null ? parseFloat(altRaw) : null,
   };
 
-  const ref = ctxVolData.indicatif || ctxVolData.icao24 || '—';
-  document.getElementById('ctx-vol-ref').textContent = ref;
+  document.getElementById('ctx-vol-ref').textContent =
+    ctxVolData.indicatif || ctxVolData.icao24 || '—';
 
-  // Afficher/masquer l'option Plainte selon infraction
-  const ctxPlainte = document.getElementById('ctx-plainte');
-  const ctxSep     = ctxMenu.querySelector('.ctx-sep');
-  if (ctxPlainte) ctxPlainte.style.display = code ? '' : 'none';
-  if (ctxSep)     ctxSep.style.display     = code ? '' : 'none';
+  const hasCourrier = destinataires.some(d => d.adresse && d.adresse.trim());
+  const hasEmail    = destinataires.some(d => d.email   && d.email.trim());
+  const ctxCourrier = document.getElementById('ctx-plainte-courrier');
+  const ctxEmail    = document.getElementById('ctx-plainte-email');
+  const ctxSep      = ctxMenu.querySelector('.ctx-sep');
+  if (ctxCourrier) ctxCourrier.style.display = (code && hasCourrier) ? '' : 'none';
+  if (ctxEmail)    ctxEmail.style.display    = (code && hasEmail)    ? '' : 'none';
+  if (ctxSep)      ctxSep.style.display      = (code && (hasCourrier || hasEmail)) ? '' : 'none';
 
-  // Positionner le menu
   const x = Math.min(e.clientX, window.innerWidth  - 240);
   const y = Math.min(e.clientY, window.innerHeight - 120);
   ctxMenu.style.left    = x + 'px';
@@ -226,28 +228,37 @@ function showCtxMenu(e, tr) {
   e.preventDefault();
 }
 
-function loadDestinataireList() {
-  fetch('/api/destinataires')
-    .then(r => r.json())
-    .then(data => {
-      destinataires  = data;
-      selectedDestId = data.length ? data[0].id : '';
-      renderDestinataireRadios();
-    })
-    .catch(() => {
-      document.getElementById('dest-radio-list').innerHTML =
-        '<div class="text-danger small">Erreur de chargement.</div>';
-    });
+function ouvrirModalPlainte(mode) {
+  pleinteMode = mode;
+  const filtered = mode === 'email'
+    ? destinataires.filter(d => d.email   && d.email.trim())
+    : destinataires.filter(d => d.adresse && d.adresse.trim());
+  selectedDestId = filtered.length ? filtered[0].id : '';
+
+  const title = document.getElementById('modal-plainte-title');
+  const btn   = document.getElementById('btn-gen-plainte');
+  if (mode === 'email') {
+    if (title) title.innerHTML = '<i class="bi bi-envelope-fill me-2"></i>Plainte par email';
+    if (btn)   btn.innerHTML   = '<i class="bi bi-send me-1"></i>Ouvrir dans ma messagerie';
+  } else {
+    if (title) title.innerHTML = '<i class="bi bi-envelope-paper-fill me-2"></i>Plainte par courrier';
+    if (btn)   btn.innerHTML   = '<i class="bi bi-download me-1"></i>Télécharger le PDF';
+  }
+
+  renderDestinataireRadios(filtered);
+  new bootstrap.Modal(modalEl).show();
 }
 
-function renderDestinataireRadios() {
+function renderDestinataireRadios(list) {
   const container = document.getElementById('dest-radio-list');
   if (!container) return;
-  if (!destinataires.length) {
-    container.innerHTML = '<div class="text-muted small fst-italic">Aucun destinataire configuré — contactez l\'administrateur.</div>';
+  if (!list || !list.length) {
+    container.innerHTML =
+      '<div class="text-muted small fst-italic">Aucun destinataire configuré — ajoutez-en dans les Réglages.</div>';
+    updateDestApercu(list || []);
     return;
   }
-  container.innerHTML = destinataires.map(d => `
+  container.innerHTML = list.map(d => `
     <div class="form-check mb-2">
       <input class="form-check-input" type="radio" name="dest-radio"
              id="dest-${d.id}" value="${escHtml(d.id)}" ${d.id === selectedDestId ? 'checked' : ''}>
@@ -260,19 +271,23 @@ function renderDestinataireRadios() {
   container.querySelectorAll('input[name="dest-radio"]').forEach(rb => {
     rb.addEventListener('change', () => {
       selectedDestId = rb.value;
-      updateDestApercu();
+      updateDestApercu(list);
     });
   });
-  updateDestApercu();
+  updateDestApercu(list);
 }
 
-function updateDestApercu() {
+function updateDestApercu(list) {
   const apercu = document.getElementById('dest-apercu');
   if (!apercu) return;
-  const d = destinataires.find(x => x.id === selectedDestId);
+  const d = (list || destinataires).find(x => x.id === selectedDestId);
   if (!d) { apercu.style.display = 'none'; return; }
-  const addrLine = d.adresse ? '  ·  ' + d.adresse.replace('\n', ', ') : '';
-  apercu.textContent = d.nom + addrLine;
+  if (pleinteMode === 'email') {
+    apercu.textContent = d.email || '';
+  } else {
+    const addrLine = d.adresse ? '  ·  ' + d.adresse.replace('\n', ', ') : '';
+    apercu.textContent = d.nom + addrLine;
+  }
   apercu.style.display = 'block';
 }
 
@@ -280,37 +295,61 @@ function genererPlainte() {
   if (!ctxVolData) return;
   const btn = document.getElementById('btn-gen-plainte');
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Génération…';
 
-  fetch('/api/plainte', {
-    method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ vol: ctxVolData, destinataire_id: selectedDestId }),
-  })
-    .then(r => {
-      if (!r.ok) return r.json().then(j => { throw new Error(j.error || 'Erreur serveur'); });
-      return r.blob();
+  if (pleinteMode === 'email') {
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Préparation…';
+    fetch('/api/plainte/email', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ vol: ctxVolData, destinataire_id: selectedDestId }),
     })
-    .then(blob => {
-      const url  = URL.createObjectURL(blob);
-      const a    = document.createElement('a');
-      const ref  = (ctxVolData.indicatif || ctxVolData.icao24 || 'plainte').trim();
-      const date = (ctxVolData.date || '').replace(/\//g, '');
-      a.href     = url;
-      a.download = `Plainte_${ref}_${date}.pdf`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      bootstrap.Modal.getInstance(modalEl)?.hide();
+      .then(r => {
+        if (!r.ok) return r.json().then(j => { throw new Error(j.error || 'Erreur serveur'); });
+        return r.json();
+      })
+      .then(({ to, subject, body }) => {
+        const mailto = `mailto:${encodeURIComponent(to)}`
+          + `?subject=${encodeURIComponent(subject)}`
+          + `&body=${encodeURIComponent(body)}`;
+        window.location.href = mailto;
+        bootstrap.Modal.getInstance(modalEl)?.hide();
+      })
+      .catch(err => alert('Erreur : ' + err.message))
+      .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-send me-1"></i>Ouvrir dans ma messagerie';
+      });
+
+  } else {
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>Génération…';
+    fetch('/api/plainte', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ vol: ctxVolData, destinataire_id: selectedDestId }),
     })
-    .catch(err => {
-      alert('Erreur : ' + err.message);
-    })
-    .finally(() => {
-      btn.disabled = false;
-      btn.innerHTML = '<i class="bi bi-download me-1"></i>Télécharger le PDF';
-    });
+      .then(r => {
+        if (!r.ok) return r.json().then(j => { throw new Error(j.error || 'Erreur serveur'); });
+        return r.blob();
+      })
+      .then(blob => {
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        const ref  = (ctxVolData.indicatif || ctxVolData.icao24 || 'plainte').trim();
+        const date = (ctxVolData.date || '').replace(/\//g, '');
+        a.href     = url;
+        a.download = `Plainte_${ref}_${date}.pdf`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+        bootstrap.Modal.getInstance(modalEl)?.hide();
+      })
+      .catch(err => alert('Erreur : ' + err.message))
+      .finally(() => {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="bi bi-download me-1"></i>Télécharger le PDF';
+      });
+  }
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -338,16 +377,26 @@ document.addEventListener('DOMContentLoaded', () => {
       window.open(url, '_blank', 'noopener');
     });
 
-    document.getElementById('ctx-plainte')?.addEventListener('click', () => {
+    document.getElementById('ctx-plainte-courrier')?.addEventListener('click', () => {
       hideCtxMenu();
-      loadDestinataireList();
-      new bootstrap.Modal(modalEl).show();
+      ouvrirModalPlainte('courrier');
+    });
+
+    document.getElementById('ctx-plainte-email')?.addEventListener('click', () => {
+      hideCtxMenu();
+      ouvrirModalPlainte('email');
     });
   }
 
   if (modalEl) {
     document.getElementById('btn-gen-plainte')?.addEventListener('click', genererPlainte);
   }
+
+  // Pré-chargement des destinataires pour le menu contextuel
+  fetch('/api/destinataires')
+    .then(r => r.json())
+    .then(data => { destinataires = data; })
+    .catch(() => {});
 
   // Délégation clic droit sur le tbody (toutes les lignes de vol)
   document.getElementById('table-body')?.addEventListener('contextmenu', e => {
