@@ -25,7 +25,8 @@ DESTINATAIRES_DEFAUT = [
         "label":       "ACNUSA",
         "nom":         "Autorité de Contrôle des Nuisances Sonores Aéroportuaires (ACNUSA)",
         "adresse":     "244 Bd Saint-Germain\n75007 PARIS",
-        "email":       "",
+        "email":       "contact@acnusa.fr",
+        "email_fixe":  True,
         "selectionne": True,
         "fixe":        True,
     },
@@ -34,7 +35,8 @@ DESTINATAIRES_DEFAUT = [
         "label":       "Maison de l'Environnement",
         "nom":         "Maison de l'Environnement Roissy Charles de Gaulle",
         "adresse":     "1, rue de France - BP 81007\n95931 Roissy Charles de Gaulle Cedex",
-        "email":       "",
+        "email":       "environnement.cdg@adp.fr",
+        "email_fixe":  True,
         "selectionne": True,
         "fixe":        True,
     },
@@ -133,7 +135,8 @@ def _parse_destinataires_from_form(form):
     for d in copy.deepcopy(DESTINATAIRES_DEFAUT):
         did = d["id"]
         d["selectionne"] = f"dest_{did}_sel" in form
-        d["email"] = form.get(f"dest_{did}_email", "").strip()
+        if not d.get("email_fixe"):
+            d["email"] = form.get(f"dest_{did}_email", "").strip()
         if not d["fixe"]:
             d["nom"]     = form.get(f"dest_{did}_nom", "").strip()
             d["adresse"] = form.get(f"dest_{did}_adresse", "").strip()
