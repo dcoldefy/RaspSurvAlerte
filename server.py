@@ -12,7 +12,7 @@ import config
 from database import (init_db, load_all, clear_db, get_stats,
                       create_user, get_user_by_token, get_user_by_id,
                       update_user_last_seen, update_user_destinataires,
-                      list_users, delete_user)
+                      update_user_info, list_users, delete_user)
 from api import chercher_communes, chercher_coordonnees_commune
 from scanner import Scanner
 from utils import fmt_alt, fmt_val, fmt_dist, fmt_pays, fmt_heure, get_code, get_css_class, get_badge, get_seuil_display, distance_km
@@ -300,6 +300,24 @@ def create_user_route():
         create_user(nom, prenom, adresse, code_postal, ville,
                     depute_civilite, depute_nom, destinataires)
     return redirect(url_for('admin_users'))
+
+
+@app.route("/admin/users/<int:uid>/edit", methods=["GET", "POST"])
+def admin_user_edit(uid):
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+    user = get_user_by_id(uid)
+    if not user:
+        return redirect(url_for('admin_users'))
+    if request.method == "POST":
+        nom        = request.form.get("nom", "").strip().upper()
+        prenom     = request.form.get("prenom", "").strip()
+        adresse    = request.form.get("adresse", "").strip()
+        code_postal = request.form.get("code_postal", "").strip()
+        ville      = request.form.get("ville", "").strip()
+        update_user_info(uid, nom, prenom, adresse, code_postal, ville)
+        return redirect(url_for('admin_users'))
+    return render_template('admin_user_edit.html', user=user)
 
 
 @app.route("/admin/users/<int:uid>/destinataires", methods=["GET", "POST"])

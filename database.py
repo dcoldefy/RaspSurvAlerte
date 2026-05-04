@@ -186,6 +186,15 @@ def update_user_destinataires(uid, destinataires):
         conn.execute("UPDATE users SET destinataires = ? WHERE id = ?", (dest_json, uid))
 
 
+def update_user_info(uid, nom, prenom, adresse, code_postal, ville):
+    """Met à jour les infos de base d'un utilisateur."""
+    with sqlite3.connect(DB_FILE) as conn:
+        conn.execute(
+            "UPDATE users SET nom=?, prenom=?, adresse=?, code_postal=?, ville=? WHERE id=?",
+            (nom, prenom, adresse, code_postal, ville, uid),
+        )
+
+
 def list_users():
     """Retourne tous les utilisateurs triés par date de création."""
     with sqlite3.connect(DB_FILE) as conn:

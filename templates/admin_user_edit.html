@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}SurvAlerte — Modifier {{ user[3] }} {{ user[2] }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-6">
+
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <a href="/admin/users" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Retour
+      </a>
+      <h5 class="mb-0">
+        <i class="bi bi-person-fill me-1 text-primary"></i>
+        {{ user[3] }} {{ user[2] }}
+      </h5>
+    </div>
+
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <form method="POST" action="/admin/users/{{ user[0] }}/edit" class="row g-3">
+          <div class="col-sm-6">
+            <label class="form-label fw-semibold">Prénom</label>
+            <input type="text" name="prenom" class="form-control"
+                   value="{{ user[3] }}" placeholder="Prénom" required>
+          </div>
+          <div class="col-sm-6">
+            <label class="form-label fw-semibold">Nom</label>
+            <input type="text" name="nom" class="form-control"
+                   value="{{ user[2] }}" placeholder="NOM" required>
+          </div>
+          <div class="col-12">
+            <label class="form-label fw-semibold">Adresse</label>
+            <input type="text" name="adresse" class="form-control"
+                   value="{{ user[4] or '' }}" placeholder="123 rue de la Paix">
+          </div>
+          <div class="col-sm-4">
+            <label class="form-label fw-semibold">Code postal</label>
+            <input type="text" name="code_postal" class="form-control"
+                   id="cp-edit" value="{{ user[5] or '' }}"
+                   placeholder="78000" maxlength="5">
+          </div>
+          <div class="col-sm-8">
+            <label class="form-label fw-semibold">Commune</label>
+            <input type="text" name="ville" class="form-control"
+                   id="ville-edit" value="{{ user[6] or '' }}"
+                   placeholder="Conflans-Sainte-Honorine"
+                   list="communes-edit-list" required>
+            <datalist id="communes-edit-list"></datalist>
+          </div>
+
+          <div class="col-12 d-flex gap-2">
+            <button type="submit" class="btn btn-primary">
+              <i class="bi bi-floppy-fill me-1"></i>Enregistrer
+            </button>
+            <a href="/admin/users/{{ user[0] }}/destinataires" class="btn btn-outline-primary">
+              <i class="bi bi-send me-1"></i>Destinataires
+            </a>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const cpEdit    = document.getElementById('cp-edit');
+const villeEdit = document.getElementById('ville-edit');
+const dlEdit    = document.getElementById('communes-edit-list');
+let   cpTimer   = null;
+
+cpEdit.addEventListener('input', () => {
+  clearTimeout(cpTimer);
+  const cp = cpEdit.value.trim();
+  if (cp.length !== 5) return;
+  cpTimer = setTimeout(() => {
+    fetch('/api/communes?cp=' + encodeURIComponent(cp))
+      .then(r => r.json())
+      .then(noms => {
+        dlEdit.innerHTML = '';
+        noms.forEach(n => {
+          const opt = document.createElement('option');
+          opt.value = n;
+          dlEdit.appendChild(opt);
+        });
+        if (noms.length === 1) villeEdit.value = noms[0];
+      });
+  }, 400);
+});
+</script>
+{% endblock %}

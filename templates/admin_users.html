@@ -114,7 +114,11 @@
           <tbody>
           {% for user in users %}
           <tr>
-            <td class="fw-semibold">{{ user[3] }} {{ user[2] }}</td>
+            <td class="fw-semibold">
+              <a href="/admin/users/{{ user[0] }}/edit" class="text-decoration-none text-body">
+                {{ user[3] }} {{ user[2] }}
+              </a>
+            </td>
             <td>
               <div class="input-group input-group-sm">
                 <input type="text" class="form-control form-control-sm font-monospace"
