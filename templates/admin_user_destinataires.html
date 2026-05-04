@@ -31,7 +31,10 @@
           </div>
 
           {% if d.fixe %}
-          <div class="text-muted small mb-2" style="white-space:pre-line">{{ d.adresse }}</div>
+          <div class="mb-2">
+            <input type="text" class="form-control form-control-sm mb-1 text-muted" value="{{ d.nom }}" readonly>
+            <textarea class="form-control form-control-sm text-muted" rows="2" readonly>{{ d.adresse }}</textarea>
+          </div>
           {% else %}
           <div class="row g-2 mb-2">
             <div class="col-sm-6">

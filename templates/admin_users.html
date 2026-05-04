@@ -52,39 +52,41 @@
             <div class="border rounded p-3 bg-light">
               <p class="fw-semibold small mb-2"><i class="bi bi-send me-1"></i>Destinataires des plaintes</p>
               <div class="row g-2">
-                {% set defaut = [
-                  {"id":"acnusa",   "label":"ACNUSA",                             "fixe":true},
-                  {"id":"maison",   "label":"Maison de l'Environnement Roissy CDG","fixe":true},
-                  {"id":"ministre", "label":"Ministre de la Transition écologique","fixe":true},
-                  {"id":"mairie",   "label":"Mairie",                              "fixe":false},
-                  {"id":"depute",   "label":"Député(e)",                           "fixe":false}
-                ] %}
-                {% for d in defaut %}
+                {% for d in destinataires_defaut %}
                 <div class="col-12 border-bottom pb-2 mb-1">
                   <div class="d-flex align-items-center gap-2 mb-1">
                     <input class="form-check-input" type="checkbox" name="dest_{{ d.id }}_sel"
-                           id="new_{{ d.id }}_sel" {% if d.fixe %}checked{% endif %}>
+                           id="new_{{ d.id }}_sel" {% if d.selectionne %}checked{% endif %}>
                     <label class="form-check-label fw-semibold small" for="new_{{ d.id }}_sel">{{ d.label }}</label>
+                    {% if d.fixe %}<span class="badge bg-secondary">adresse fixe</span>{% endif %}
                   </div>
-                  {% if not d.fixe %}
+                  {% if d.fixe %}
+                  <div class="row g-1 ms-3 mb-1">
+                    <div class="col-sm-6">
+                      <input type="text" class="form-control form-control-sm text-muted" value="{{ d.nom }}" readonly>
+                    </div>
+                    <div class="col-sm-6">
+                      <textarea class="form-control form-control-sm text-muted" rows="2" readonly>{{ d.adresse }}</textarea>
+                    </div>
+                  </div>
+                  <div class="ms-3">
+                    <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm"
+                           placeholder="Email (facultatif)">
+                  </div>
+                  {% else %}
                   <div class="row g-1 ms-3">
                     <div class="col-sm-5">
                       <input type="text" name="dest_{{ d.id }}_nom" class="form-control form-control-sm"
                              placeholder="Nom complet">
                     </div>
                     <div class="col-sm-4">
-                      <input type="text" name="dest_{{ d.id }}_adresse" class="form-control form-control-sm"
-                             placeholder="Adresse (ligne 1&#10;ligne 2)">
+                      <textarea name="dest_{{ d.id }}_adresse" class="form-control form-control-sm" rows="2"
+                                placeholder="Adresse&#10;CP Ville"></textarea>
                     </div>
                     <div class="col-sm-3">
                       <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm"
                              placeholder="Email">
                     </div>
-                  </div>
-                  {% else %}
-                  <div class="ms-3">
-                    <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm"
-                           placeholder="Email (facultatif)">
                   </div>
                   {% endif %}
                 </div>

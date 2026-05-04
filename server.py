@@ -277,7 +277,8 @@ def admin_users():
     users = list_users()
     scheme = request.headers.get('X-Forwarded-Proto', request.scheme)
     base_url = f"{scheme}://{request.host}"
-    return render_template('admin_users.html', users=users, base_url=base_url)
+    return render_template('admin_users.html', users=users, base_url=base_url,
+                           destinataires_defaut=DESTINATAIRES_DEFAUT)
 
 
 @app.route("/admin/users/create", methods=["POST"])
