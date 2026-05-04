@@ -53,8 +53,9 @@
           <div class="row g-2">
             <div class="col-sm-6">
               <label class="form-label small">Email</label>
-              <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm"
-                     value="{{ d.email }}" placeholder="contact@organisme.fr">
+              <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm{% if d.email_fixe %} text-muted{% endif %}"
+                     value="{{ d.email }}" placeholder="contact@organisme.fr"
+                     {% if d.email_fixe %}readonly{% endif %}>
             </div>
           </div>
         </div>

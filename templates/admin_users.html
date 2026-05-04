@@ -70,8 +70,10 @@
                     </div>
                   </div>
                   <div class="ms-3">
-                    <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm"
-                           placeholder="Email (facultatif)">
+                    <input type="email" name="dest_{{ d.id }}_email"
+                           class="form-control form-control-sm{% if d.email_fixe %} text-muted{% endif %}"
+                           value="{{ d.email }}" placeholder="Email (facultatif)"
+                           {% if d.email_fixe %}readonly{% endif %}>
                   </div>
                   {% else %}
                   <div class="row g-1 ms-3">
