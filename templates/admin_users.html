@@ -47,6 +47,52 @@
             <input type="text" name="depute_nom" class="form-control"
                    placeholder="Prénom NOM (facultatif)">
           </div>
+          <!-- Destinataires -->
+          <div class="col-12 mt-2">
+            <div class="border rounded p-3 bg-light">
+              <p class="fw-semibold small mb-2"><i class="bi bi-send me-1"></i>Destinataires des plaintes</p>
+              <div class="row g-2">
+                {% set defaut = [
+                  {"id":"acnusa",   "label":"ACNUSA",                             "fixe":true},
+                  {"id":"maison",   "label":"Maison de l'Environnement Roissy CDG","fixe":true},
+                  {"id":"ministre", "label":"Ministre de la Transition écologique","fixe":true},
+                  {"id":"mairie",   "label":"Mairie",                              "fixe":false},
+                  {"id":"depute",   "label":"Député(e)",                           "fixe":false}
+                ] %}
+                {% for d in defaut %}
+                <div class="col-12 border-bottom pb-2 mb-1">
+                  <div class="d-flex align-items-center gap-2 mb-1">
+                    <input class="form-check-input" type="checkbox" name="dest_{{ d.id }}_sel"
+                           id="new_{{ d.id }}_sel" {% if d.fixe %}checked{% endif %}>
+                    <label class="form-check-label fw-semibold small" for="new_{{ d.id }}_sel">{{ d.label }}</label>
+                  </div>
+                  {% if not d.fixe %}
+                  <div class="row g-1 ms-3">
+                    <div class="col-sm-5">
+                      <input type="text" name="dest_{{ d.id }}_nom" class="form-control form-control-sm"
+                             placeholder="Nom complet">
+                    </div>
+                    <div class="col-sm-4">
+                      <input type="text" name="dest_{{ d.id }}_adresse" class="form-control form-control-sm"
+                             placeholder="Adresse (ligne 1&#10;ligne 2)">
+                    </div>
+                    <div class="col-sm-3">
+                      <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm"
+                             placeholder="Email">
+                    </div>
+                  </div>
+                  {% else %}
+                  <div class="ms-3">
+                    <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm"
+                           placeholder="Email (facultatif)">
+                  </div>
+                  {% endif %}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
           <div class="col-sm-6">
             <button type="submit" class="btn btn-primary w-100">
               <i class="bi bi-plus-circle me-1"></i>Créer l'utilisateur
@@ -98,12 +144,18 @@
               {% endif %}
             </td>
             <td>
-              <form method="POST" action="/admin/users/{{ user[0] }}/delete"
-                    onsubmit="return confirm('Supprimer {{ user[3] }} {{ user[2] }} ?')">
-                <button type="submit" class="btn btn-sm btn-outline-danger">
-                  <i class="bi bi-trash"></i>
-                </button>
-              </form>
+              <div class="d-flex gap-1">
+                <a href="/admin/users/{{ user[0] }}/destinataires"
+                   class="btn btn-sm btn-outline-primary" title="Destinataires">
+                  <i class="bi bi-send"></i>
+                </a>
+                <form method="POST" action="/admin/users/{{ user[0] }}/delete"
+                      onsubmit="return confirm('Supprimer {{ user[3] }} {{ user[2] }} ?')">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">
+                    <i class="bi bi-trash"></i>
+                  </button>
+                </form>
+              </div>
             </td>
           </tr>
           {% endfor %}

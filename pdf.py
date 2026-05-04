@@ -65,10 +65,9 @@ def generer_plainte_pdf_bytes(profil, vol, destinataire):
     story.append(Spacer(1, 0.8*cm))
 
     # Destinataire
-    dest_nom     = destinataire.get("nom", "")
-    dest_adresse = destinataire.get("adresse", "")
-    dest_cp      = destinataire.get("cp_ville", "")
-    dest_bloc = f"{dest_nom}<br/>{dest_adresse}<br/>{dest_cp}"
+    dest_nom  = destinataire.get("nom", "")
+    dest_addr = destinataire.get("adresse", "").replace("\n", "<br/>")
+    dest_bloc = dest_nom + (f"<br/>{dest_addr}" if dest_addr else "")
     story.append(Paragraph(dest_bloc, s_right))
     story.append(Spacer(1, 0.6*cm))
 

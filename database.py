@@ -8,7 +8,7 @@ from datetime import datetime
 
 from config import DB_FILE, DEDUP_WINDOW
 
-SCHEMA_VERSION = 5
+SCHEMA_VERSION = 6
 
 
 def init_db():
@@ -46,6 +46,9 @@ def init_db():
 
         if current < 5:
             c.execute("ALTER TABLE users ADD COLUMN last_seen_at TEXT")
+
+        if current < 6:
+            c.execute("ALTER TABLE users ADD COLUMN destinataires TEXT")
 
         if current < SCHEMA_VERSION:
             c.execute("DELETE FROM schema_version")
@@ -136,24 +139,35 @@ def clear_db():
 
 # ── Utilisateurs ───────────────────────────────────────────────────────────
 
-def create_user(nom, prenom, adresse, code_postal, ville, depute_civilite="M.", depute_nom=""):
+def create_user(nom, prenom, adresse, code_postal, ville, depute_civilite="M.", depute_nom="", destinataires=None):
     """Crée un utilisateur, retourne le token généré."""
+    import json as _json
     token = secrets.token_urlsafe(32)
     created_at = datetime.now().strftime("%Y-%m-%d %H:%M")
+    dest_json = _json.dumps(destinataires, ensure_ascii=False) if destinataires is not None else None
     with sqlite3.connect(DB_FILE) as conn:
         conn.execute(
-            "INSERT INTO users (token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
-            (token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at),
+            "INSERT INTO users (token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, destinataires) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            (token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, dest_json),
         )
     return token
 
 
 def get_user_by_token(token):
-    """Retourne (id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at) ou None."""
+    """Retourne (id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at, destinataires) ou None."""
     with sqlite3.connect(DB_FILE) as conn:
         return conn.execute(
-            "SELECT id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at FROM users WHERE token = ?",
+            "SELECT id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at, destinataires FROM users WHERE token = ?",
             (token,),
+        ).fetchone()
+
+
+def get_user_by_id(uid):
+    """Retourne le même tuple que get_user_by_token, lookup par id."""
+    with sqlite3.connect(DB_FILE) as conn:
+        return conn.execute(
+            "SELECT id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at, destinataires FROM users WHERE id = ?",
+            (uid,),
         ).fetchone()
 
 
@@ -164,11 +178,19 @@ def update_user_last_seen(token):
         conn.execute("UPDATE users SET last_seen_at = ? WHERE token = ?", (now, token))
 
 
+def update_user_destinataires(uid, destinataires):
+    """Sauvegarde la liste des destinataires (list Python) pour un user."""
+    import json as _json
+    dest_json = _json.dumps(destinataires, ensure_ascii=False)
+    with sqlite3.connect(DB_FILE) as conn:
+        conn.execute("UPDATE users SET destinataires = ? WHERE id = ?", (dest_json, uid))
+
+
 def list_users():
     """Retourne tous les utilisateurs triés par date de création."""
     with sqlite3.connect(DB_FILE) as conn:
         return conn.execute(
-            "SELECT id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at FROM users ORDER BY created_at DESC"
+            "SELECT id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at, destinataires FROM users ORDER BY created_at DESC"
         ).fetchall()
 
 

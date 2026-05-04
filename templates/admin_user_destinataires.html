@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}SurvAlerte — Destinataires de {{ user[3] }} {{ user[2] }}{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-lg-7">
+
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <a href="/admin/users" class="btn btn-sm btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Retour
+      </a>
+      <h5 class="mb-0">
+        <i class="bi bi-send me-1 text-primary"></i>
+        Destinataires — {{ user[3] }} {{ user[2] }}
+      </h5>
+    </div>
+
+    <form method="POST" action="/admin/users/{{ user[0] }}/destinataires">
+      {% for d in destinataires %}
+      <div class="card shadow-sm mb-3">
+        <div class="card-body">
+          <div class="d-flex align-items-center gap-2 mb-2">
+            <input class="form-check-input" type="checkbox" name="dest_{{ d.id }}_sel"
+                   id="{{ d.id }}_sel" {% if d.selectionne %}checked{% endif %}>
+            <label class="form-check-label fw-semibold" for="{{ d.id }}_sel">
+              {{ d.label }}
+            </label>
+            {% if d.fixe %}
+            <span class="badge bg-secondary ms-1">adresse fixe</span>
+            {% endif %}
+          </div>
+
+          {% if d.fixe %}
+          <div class="text-muted small mb-2" style="white-space:pre-line">{{ d.adresse }}</div>
+          {% else %}
+          <div class="row g-2 mb-2">
+            <div class="col-sm-6">
+              <label class="form-label small">Nom complet</label>
+              <input type="text" name="dest_{{ d.id }}_nom" class="form-control form-control-sm"
+                     value="{{ d.nom }}" placeholder="Nom ou titre du destinataire">
+            </div>
+            <div class="col-sm-6">
+              <label class="form-label small">Adresse postale</label>
+              <textarea name="dest_{{ d.id }}_adresse" class="form-control form-control-sm" rows="2"
+                        placeholder="Ligne 1&#10;Ligne 2 / CP Ville">{{ d.adresse }}</textarea>
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="row g-2">
+            <div class="col-sm-6">
+              <label class="form-label small">Email</label>
+              <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm"
+                     value="{{ d.email }}" placeholder="contact@organisme.fr">
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      <button type="submit" class="btn btn-primary">
+        <i class="bi bi-check-circle me-1"></i>Enregistrer
+      </button>
+    </form>
+
+  </div>
+</div>
+{% endblock %}
