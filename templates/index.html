@@ -151,11 +151,15 @@
 <!-- Menu contextuel clic droit -->
 <div id="ctx-menu">
   <div class="ctx-header" id="ctx-vol-ref">—</div>
-  <div class="ctx-item ctx-danger" id="ctx-plainte">
-    <i class="bi bi-file-earmark-text-fill"></i>
-    Générer une plainte (PDF)
+  <div class="ctx-item ctx-danger" id="ctx-plainte-courrier" style="display:none;">
+    <i class="bi bi-envelope-paper-fill"></i>
+    Plainte par courrier (PDF)
   </div>
-  <div class="ctx-sep"></div>
+  <div class="ctx-item ctx-danger" id="ctx-plainte-email" style="display:none;">
+    <i class="bi bi-envelope-fill"></i>
+    Plainte par email
+  </div>
+  <div class="ctx-sep" style="display:none;"></div>
   <div class="ctx-item" id="ctx-fr24">
     <i class="bi bi-box-arrow-up-right"></i>
     Voir sur Flightradar24
@@ -167,20 +171,16 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header" style="background:var(--navy);color:#fff;">
-        <h5 class="modal-title">
+        <h5 class="modal-title" id="modal-plainte-title">
           <i class="bi bi-file-earmark-text me-2"></i>Destinataire de la plainte
         </h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body" id="modal-dest-body">
         <p class="text-muted small mb-3">
-          Choisissez l'organisme auquel adresser votre plainte.
+          Choisissez le destinataire de votre plainte.
         </p>
-        <div id="dest-radio-list">
-          <div class="text-center text-muted py-3">
-            <div class="spinner-border spinner-border-sm me-2"></div>Chargement…
-          </div>
-        </div>
+        <div id="dest-radio-list"></div>
         <div id="dest-apercu" class="mt-3 p-2 rounded small"
              style="background:#e8f4fd;color:#185fa5;display:none;"></div>
       </div>

@@ -129,3 +129,63 @@ def generer_plainte_pdf_bytes(profil, vol, destinataire):
     doc.build(story)
     buf.seek(0)
     return buf.read()
+
+
+def generer_plainte_texte(profil, vol, destinataire):
+    """Retourne (subject, body) en texte brut pour un envoi par email."""
+    prenom   = profil.get("prenom", "")
+    nom      = profil.get("nom", "").upper()
+    adresse  = profil.get("adresse", "")
+    cp       = profil.get("code_postal", "")
+    ville    = profil.get("ville", "")
+
+    date_vol  = vol.get("date", "")
+    heure_vol = vol.get("heure", "")
+    indicatif = vol.get("indicatif", "")
+    icao24    = vol.get("icao24", "")
+    code_infr = vol.get("code", "") or ""
+    alt_m     = vol.get("altitude_m")
+
+    date_sign = datetime.now().strftime("%d/%m/%Y")
+    heure_obj = heure_vol[:5] if len(heure_vol) >= 5 else heure_vol
+
+    if indicatif and indicatif != "-":
+        ref_vol = indicatif.strip()
+    elif icao24:
+        ref_vol = icao24.strip()
+    else:
+        ref_vol = "référence inconnue"
+
+    alt_str = f"{int(alt_m)} m" if alt_m is not None else "altitude inconnue"
+    if code_infr == "ALT":
+        motif = f"à basse altitude ({alt_str}) le {date_vol} à {heure_vol}"
+    elif code_infr == "NUIT":
+        motif = f"en dehors des horaires autorisés le {date_vol} à {heure_vol}"
+    elif code_infr == "ALT+NUIT":
+        motif = (f"à basse altitude ({alt_str}) et en dehors des horaires autorisés"
+                 f" le {date_vol} à {heure_vol}")
+    else:
+        motif = f"à basse altitude le {date_vol} à {heure_vol}"
+
+    subject = f"Plainte pour nuisance aérienne — vol du {date_vol} à {heure_obj}"
+
+    icao_mention = f" (ICAO24 : {icao24})" if icao24 and icao24.strip() != ref_vol else ""
+    dest_nom = destinataire.get("nom", "")
+
+    body = (
+        f"{prenom} {nom}\n"
+        f"{adresse}\n"
+        f"{cp} {ville}\n\n"
+        f"{ville}, le {date_sign}\n\n"
+        f"{dest_nom}\n\n"
+        f"Objet : {subject}\n\n"
+        f"Madame, Monsieur,\n\n"
+        f"Je soussigné(e) {prenom} {nom}, demeurant au {adresse}, {cp}, {ville}, "
+        f"déclare avoir été gêné(e) par un avion volant {motif}, au-dessus de {ville}.\n\n"
+        f"Je souhaite que ma plainte soit enregistrée et qu'une réponse circonstanciée me soit adressée.\n\n"
+        f"Si une infraction était constatée, je souhaite que des sanctions soient prises contre les responsables.\n\n"
+        f"Pour information, il semblerait que le vol concerné soit le vol : {ref_vol}{icao_mention}.\n\n"
+        f"Veuillez agréer, Madame, Monsieur, l'expression de mes salutations distinguées.\n\n"
+        f"{prenom} {nom}"
+    )
+    return subject, body

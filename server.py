@@ -16,7 +16,7 @@ from database import (init_db, load_all, clear_db, get_stats,
 from api import chercher_communes, chercher_coordonnees_commune
 from scanner import Scanner
 from utils import fmt_alt, fmt_val, fmt_dist, fmt_pays, fmt_heure, get_code, get_css_class, get_badge, get_seuil_display, distance_km
-from pdf import generer_plainte_pdf_bytes
+from pdf import generer_plainte_pdf_bytes, generer_plainte_texte
 
 # Destinataires — modèle par défaut (3 fixes pré-cochés, 2 à remplir)
 DESTINATAIRES_DEFAUT = [
@@ -389,6 +389,27 @@ def api_plainte():
         mimetype="application/pdf",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
+
+
+@app.route("/api/plainte/email", methods=["POST"])
+def api_plainte_email():
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Requête JSON invalide."}), 400
+    vol     = data.get("vol", {})
+    dest_id = data.get("destinataire_id", "")
+    profil  = _get_profil()
+
+    if not profil.get("nom") or not profil.get("prenom"):
+        return jsonify({"error": "Profil incomplet — renseignez votre nom et prénom."}), 400
+
+    dests = _get_destinataires()
+    dest  = next((d for d in dests if d["id"] == dest_id and d.get("selectionne") and d.get("email")), None)
+    if not dest:
+        return jsonify({"error": "Destinataire invalide ou sans email configuré."}), 400
+
+    subject, body = generer_plainte_texte(profil, vol, dest)
+    return jsonify({"to": dest["email"], "subject": subject, "body": body})
 
 
 # ── Actions ────────────────────────────────────────────────────────────────
