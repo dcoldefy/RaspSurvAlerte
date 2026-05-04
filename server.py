@@ -51,8 +51,10 @@ DESTINATAIRES = [
 ]
 
 import time
+from datetime import timedelta
 app = Flask(__name__)
 app.jinja_env.globals['css_version'] = int(time.time())
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(days=365)
 
 # Clé secrète pour les sessions (générée une fois, stockée dans config)
 _cfg_init = config.load()
@@ -76,11 +78,28 @@ def _access_level():
     """Retourne 'admin', 'user' ou None."""
     if session.get('is_admin'):
         return 'admin'
-    token = request.args.get('token', '').strip() or session.get('user_token', '')
+    token = (request.args.get('token', '').strip()
+             or session.get('user_token', '')
+             or request.cookies.get('user_token', ''))
     if token and get_user_by_token(token):
+        session.permanent = True
         session['user_token'] = token
         return 'user'
     return None
+
+
+@app.after_request
+def _set_token_cookie(response):
+    """Pose un cookie persistant user_token à chaque réponse authentifiée."""
+    token = session.get('user_token', '')
+    if token:
+        response.set_cookie(
+            'user_token', token,
+            max_age=365 * 24 * 3600,
+            httponly=True,
+            samesite='Lax',
+        )
+    return response
 
 
 def _get_profil():
@@ -139,6 +158,24 @@ def login():
     first_time = not password_hash
 
     if request.method == "POST":
+        # Connexion par lien/token utilisateur
+        raw_token = request.form.get('user_token', '').strip()
+        if raw_token:
+            # Accepte une URL complète ou juste le token
+            if '?token=' in raw_token:
+                raw_token = raw_token.split('?token=')[1].split('&')[0]
+            user = get_user_by_token(raw_token)
+            if user:
+                session.permanent = True
+                session['user_token'] = raw_token
+                resp = redirect(url_for('index'))
+                resp.set_cookie('user_token', raw_token,
+                                max_age=365 * 24 * 3600,
+                                httponly=True, samesite='Lax')
+                return resp
+            return render_template('login.html', first_time=first_time,
+                                   error_token="Lien invalide ou expiré.")
+
         password = request.form.get('password', '').strip()
         if first_time:
             if len(password) >= 4:
@@ -160,7 +197,9 @@ def login():
 @app.route("/logout")
 def logout():
     session.clear()
-    return redirect(url_for('login'))
+    resp = redirect(url_for('login'))
+    resp.delete_cookie('user_token')
+    return resp
 
 
 # ── Pages ──────────────────────────────────────────────────────────────────

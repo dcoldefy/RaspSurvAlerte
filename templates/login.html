@@ -37,11 +37,19 @@
         </form>
 
         <hr class="my-4">
-        <p class="text-muted text-center small mb-0">
-          Page admin réservée — connectez-vous avec le lien que vous avez reçu
-          ou faites une demande à
-          <a href="mailto:survalerte@coldefy.com">survalerte@coldefy.com</a>
-        </p>
+        <p class="text-muted text-center small mb-2">Vous avez reçu un lien personnel ?</p>
+        {% if error_token %}
+        <div class="alert alert-danger py-2">{{ error_token }}</div>
+        {% endif %}
+        <form method="POST" action="/login">
+          <div class="mb-3">
+            <input type="text" name="user_token" class="form-control form-control-sm"
+                   placeholder="Collez votre lien ou token ici" autocomplete="off">
+          </div>
+          <button type="submit" class="btn btn-outline-secondary w-100 btn-sm">
+            Accéder avec mon lien
+          </button>
+        </form>
       </div>
     </div>
   </div>
