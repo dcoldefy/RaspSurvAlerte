@@ -8,7 +8,7 @@ from datetime import datetime
 
 from config import DB_FILE, DEDUP_WINDOW
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5
 
 
 def init_db():
@@ -43,6 +43,9 @@ def init_db():
         if current < 4:
             c.execute("ALTER TABLE users ADD COLUMN depute_civilite TEXT NOT NULL DEFAULT 'M.'")
             c.execute("ALTER TABLE users ADD COLUMN depute_nom TEXT NOT NULL DEFAULT ''")
+
+        if current < 5:
+            c.execute("ALTER TABLE users ADD COLUMN last_seen_at TEXT")
 
         if current < SCHEMA_VERSION:
             c.execute("DELETE FROM schema_version")
@@ -146,19 +149,26 @@ def create_user(nom, prenom, adresse, code_postal, ville, depute_civilite="M.", 
 
 
 def get_user_by_token(token):
-    """Retourne (id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at) ou None."""
+    """Retourne (id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at) ou None."""
     with sqlite3.connect(DB_FILE) as conn:
         return conn.execute(
-            "SELECT id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at FROM users WHERE token = ?",
+            "SELECT id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at FROM users WHERE token = ?",
             (token,),
         ).fetchone()
+
+
+def update_user_last_seen(token):
+    """Met à jour last_seen_at de l'utilisateur identifié par token."""
+    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    with sqlite3.connect(DB_FILE) as conn:
+        conn.execute("UPDATE users SET last_seen_at = ? WHERE token = ?", (now, token))
 
 
 def list_users():
     """Retourne tous les utilisateurs triés par date de création."""
     with sqlite3.connect(DB_FILE) as conn:
         return conn.execute(
-            "SELECT id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at FROM users ORDER BY created_at DESC"
+            "SELECT id, token, nom, prenom, adresse, code_postal, ville, depute_civilite, depute_nom, created_at, last_seen_at FROM users ORDER BY created_at DESC"
         ).fetchall()
 
 

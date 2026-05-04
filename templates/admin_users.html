@@ -69,6 +69,7 @@
               <th>Nom</th>
               <th>Lien d'accès <span class="text-muted fw-normal small">(cliquer pour sélectionner)</span></th>
               <th>Créé le</th>
+              <th>Dernière connexion</th>
               <th></th>
             </tr>
           </thead>
@@ -89,6 +90,13 @@
               </div>
             </td>
             <td class="text-muted small">{{ user[9] }}</td>
+            <td class="small">
+              {% if user[10] %}
+              <span class="badge bg-success-subtle text-success border border-success-subtle">{{ user[10] }}</span>
+              {% else %}
+              <span class="text-muted fst-italic">Jamais</span>
+              {% endif %}
+            </td>
             <td>
               <form method="POST" action="/admin/users/{{ user[0] }}/delete"
                     onsubmit="return confirm('Supprimer {{ user[3] }} {{ user[2] }} ?')">

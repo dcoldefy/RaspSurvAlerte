@@ -10,7 +10,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 import config
 from database import (init_db, load_all, clear_db, get_stats,
-                      create_user, get_user_by_token, list_users, delete_user)
+                      create_user, get_user_by_token, update_user_last_seen, list_users, delete_user)
 from api import chercher_communes, chercher_coordonnees_commune
 from scanner import Scanner
 from utils import fmt_alt, fmt_val, fmt_dist, fmt_pays, fmt_heure, get_code, get_css_class, get_badge, get_seuil_display, distance_km
@@ -78,12 +78,15 @@ def _access_level():
     """Retourne 'admin', 'user' ou None."""
     if session.get('is_admin'):
         return 'admin'
+    already_in_session = bool(session.get('user_token', ''))
     token = (request.args.get('token', '').strip()
              or session.get('user_token', '')
              or request.cookies.get('user_token', ''))
     if token and get_user_by_token(token):
         session.permanent = True
         session['user_token'] = token
+        if not already_in_session:
+            update_user_last_seen(token)
         return 'user'
     return None
 
