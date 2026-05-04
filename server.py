@@ -2,6 +2,8 @@
 Serveur Flask — interface web RaspSurAlert.
 Lance le scanner au démarrage, sert le dashboard et les réglages.
 """
+import copy
+import json
 import re
 import secrets as _secrets
 import signal
@@ -16,37 +18,52 @@ from scanner import Scanner
 from utils import fmt_alt, fmt_val, fmt_dist, fmt_pays, fmt_heure, get_code, get_css_class, get_badge, get_seuil_display, distance_km
 from pdf import generer_plainte_pdf_bytes
 
-# Destinataires disponibles pour la génération de plainte
-DESTINATAIRES = [
+# Destinataires — modèle par défaut (3 fixes pré-cochés, 2 à remplir)
+DESTINATAIRES_DEFAUT = [
     {
-        "label":    "ACNUSA",
-        "nom":      "Autorité de Contrôle des Nuisances Sonores Aéroportuaires (ACNUSA)",
-        "adresse":  "244 Bd Saint-Germain",
-        "cp_ville": "75007 PARIS",
+        "id":          "acnusa",
+        "label":       "ACNUSA",
+        "nom":         "Autorité de Contrôle des Nuisances Sonores Aéroportuaires (ACNUSA)",
+        "adresse":     "244 Bd Saint-Germain\n75007 PARIS",
+        "email":       "",
+        "selectionne": True,
+        "fixe":        True,
     },
     {
-        "label":    "Maison de l'Environnement Roissy CDG",
-        "nom":      "Maison de l'Environnement Roissy Charles de Gaulle",
-        "adresse":  "1, rue de France - BP 81007",
-        "cp_ville": "95931 Roissy Charles de Gaulle Cedex",
+        "id":          "maison",
+        "label":       "Maison de l'Environnement",
+        "nom":         "Maison de l'Environnement Roissy Charles de Gaulle",
+        "adresse":     "1, rue de France - BP 81007\n95931 Roissy Charles de Gaulle Cedex",
+        "email":       "",
+        "selectionne": True,
+        "fixe":        True,
     },
     {
-        "label":    "Ministre de la Transition écologique",
-        "nom":      "Monsieur le Ministre de la Transition écologique",
-        "adresse":  "Hôtel de Roquelaure - 246, Boulevard Saint-Germain",
-        "cp_ville": "75007 PARIS",
+        "id":          "ministre",
+        "label":       "Ministre de la Transition écologique",
+        "nom":         "Monsieur le Ministre de la Transition écologique",
+        "adresse":     "Hôtel de Roquelaure - 246, Boulevard Saint-Germain\n75007 PARIS",
+        "email":       "",
+        "selectionne": True,
+        "fixe":        True,
     },
     {
-        "label":    "Mairie de ma commune",
-        "nom":      None,   # Rempli dynamiquement depuis le profil
-        "adresse":  None,
-        "cp_ville": None,
+        "id":          "mairie",
+        "label":       "Mairie",
+        "nom":         "",
+        "adresse":     "",
+        "email":       "",
+        "selectionne": False,
+        "fixe":        False,
     },
     {
-        "label":    "Député(e) de ma circonscription",
-        "nom":      "DEPUTE",   # Rempli dynamiquement depuis le profil
-        "adresse":  None,
-        "cp_ville": None,
+        "id":          "depute",
+        "label":       "Député(e)",
+        "nom":         "",
+        "adresse":     "",
+        "email":       "",
+        "selectionne": False,
+        "fixe":        False,
     },
 ]
 
@@ -100,6 +117,28 @@ def _get_profil():
                 "depute_nom":      user[8],
             }
     return config.load().get("profil", {})
+
+
+def _get_destinataires():
+    """Retourne la liste des destinataires depuis config.json (ou défaut)."""
+    stored = config.load().get("destinataires")
+    if stored:
+        return stored
+    return copy.deepcopy(DESTINATAIRES_DEFAUT)
+
+
+def _parse_destinataires_from_form(form):
+    """Construit la liste des destinataires depuis les données de formulaire POST."""
+    result = []
+    for d in copy.deepcopy(DESTINATAIRES_DEFAUT):
+        did = d["id"]
+        d["selectionne"] = f"dest_{did}_sel" in form
+        d["email"] = form.get(f"dest_{did}_email", "").strip()
+        if not d["fixe"]:
+            d["nom"]     = form.get(f"dest_{did}_nom", "").strip()
+            d["adresse"] = form.get(f"dest_{did}_adresse", "").strip()
+        result.append(d)
+    return result
 
 
 # ── Helpers Jinja2 ─────────────────────────────────────────────────────────
@@ -182,7 +221,7 @@ def reglages():
     if not session.get('is_admin'):
         return redirect(url_for('login'))
     cfg = config.load()
-    return render_template("reglages.html", cfg=cfg)
+    return render_template("reglages.html", cfg=cfg, destinataires=_get_destinataires())
 
 
 @app.route("/admin/users")
@@ -308,31 +347,11 @@ def api_communes():
 
 @app.route("/api/destinataires")
 def api_destinataires():
-    profil = _get_profil()
-    ville  = profil.get("ville", "")
-    cp     = profil.get("code_postal", "")
-    result = []
-    for d in DESTINATAIRES:
-        if d["nom"] is None:
-            result.append({
-                "label":    f"Mairie de {ville}" if ville else "Mairie de ma commune",
-                "nom":      f"Monsieur le Maire de {ville}" if ville else "Monsieur le Maire",
-                "adresse":  f"Mairie de {ville}" if ville else "",
-                "cp_ville": f"{cp} {ville}".strip(),
-            })
-        elif d["nom"] == "DEPUTE":
-            depute_nom = profil.get("depute_nom", "").strip()
-            if not depute_nom:
-                continue
-            civilite = profil.get("depute_civilite", "M.")
-            result.append({
-                "label":    f"Député(e) — {depute_nom}",
-                "nom":      f"{civilite} {depute_nom}, Député(e)",
-                "adresse":  "Assemblée Nationale — 126 rue de l'Université",
-                "cp_ville": "75355 PARIS 07 SP",
-            })
-        else:
-            result.append({k: d[k] for k in ("label", "nom", "adresse", "cp_ville")})
+    dests = _get_destinataires()
+    result = [
+        {"id": d["id"], "label": d["label"], "nom": d["nom"], "adresse": d["adresse"], "email": d["email"]}
+        for d in dests if d.get("selectionne") and d.get("nom")
+    ]
     return jsonify(result)
 
 
@@ -341,33 +360,17 @@ def api_plainte():
     data = request.get_json()
     if not data:
         return jsonify({"error": "Requête JSON invalide."}), 400
-    vol      = data.get("vol", {})
-    try:
-        dest_idx = int(data.get("destinataire_idx", 0))
-    except (TypeError, ValueError):
-        dest_idx = 0
-
-    profil = _get_profil()
+    vol     = data.get("vol", {})
+    dest_id = data.get("destinataire_id", "")
+    profil  = _get_profil()
 
     if not profil.get("nom") or not profil.get("prenom"):
         return jsonify({"error": "Profil incomplet — renseignez votre nom et prénom dans les Réglages."}), 400
 
-    if dest_idx < 0 or dest_idx >= len(DESTINATAIRES):
-        dest_idx = 0
-
-    dest = dict(DESTINATAIRES[dest_idx])
-    if dest["nom"] is None:
-        ville = profil.get("ville", "")
-        cp    = profil.get("code_postal", "")
-        dest["nom"]      = f"Monsieur le Maire de {ville}"
-        dest["adresse"]  = f"Mairie de {ville}"
-        dest["cp_ville"] = f"{cp} {ville}".strip()
-    elif dest["nom"] == "DEPUTE":
-        depute_nom = profil.get("depute_nom", "").strip()
-        civilite   = profil.get("depute_civilite", "M.")
-        dest["nom"]      = f"{civilite} {depute_nom}, Député(e)" if depute_nom else "Député(e)"
-        dest["adresse"]  = "Assemblée Nationale — 126 rue de l'Université"
-        dest["cp_ville"] = "75355 PARIS 07 SP"
+    dests = _get_destinataires()
+    dest  = next((d for d in dests if d["id"] == dest_id and d.get("selectionne") and d.get("nom")), None)
+    if not dest:
+        return jsonify({"error": "Destinataire invalide ou non configuré."}), 400
 
     try:
         pdf_bytes = generer_plainte_pdf_bytes(profil, vol, dest)
@@ -395,13 +398,11 @@ def save_profil():
     cp  = request.form.get("code_postal", "").strip()
     vil = request.form.get("ville", "").strip().upper()
     cfg["profil"] = {
-        "nom":             request.form.get("nom", "").strip().upper(),
-        "prenom":          request.form.get("prenom", "").strip().capitalize(),
-        "adresse":         request.form.get("adresse", "").strip(),
-        "code_postal":     cp,
-        "ville":           vil,
-        "depute_civilite": request.form.get("depute_civilite", "M.").strip(),
-        "depute_nom":      request.form.get("depute_nom", "").strip(),
+        "nom":         request.form.get("nom", "").strip().upper(),
+        "prenom":      request.form.get("prenom", "").strip().capitalize(),
+        "adresse":     request.form.get("adresse", "").strip(),
+        "code_postal": cp,
+        "ville":       vil,
     }
     lat, lon = chercher_coordonnees_commune(
         cp, vil, cfg.get("lat", 48.9897), cfg.get("lon", 2.0939))
@@ -409,6 +410,16 @@ def save_profil():
     cfg["lon"] = lon
     config.save(cfg)
     return redirect(url_for("reglages") + "?ok=profil")
+
+
+@app.route("/reglages/destinataires", methods=["POST"])
+def save_destinataires():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+    cfg = config.load()
+    cfg["destinataires"] = _parse_destinataires_from_form(request.form)
+    config.save(cfg)
+    return redirect(url_for("reglages") + "?ok=destinataires")
 
 
 @app.route("/reglages/seuils", methods=["POST"])

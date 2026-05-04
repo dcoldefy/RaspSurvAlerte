@@ -187,8 +187,8 @@ function pad(n) {
 let ctxMenu    = null;
 let modalEl    = null;
 let ctxVolData = null;   // données du vol en cours
-let destinataires = [];  // liste chargée depuis l'API
-let selectedDest  = 0;
+let destinataires   = [];  // liste chargée depuis l'API
+let selectedDestId  = '';  // id string du destinataire sélectionné
 
 function hideCtxMenu() {
   if (ctxMenu) ctxMenu.style.display = 'none';
@@ -230,7 +230,8 @@ function loadDestinataireList() {
   fetch('/api/destinataires')
     .then(r => r.json())
     .then(data => {
-      destinataires = data;
+      destinataires  = data;
+      selectedDestId = data.length ? data[0].id : '';
       renderDestinataireRadios();
     })
     .catch(() => {
@@ -242,19 +243,23 @@ function loadDestinataireList() {
 function renderDestinataireRadios() {
   const container = document.getElementById('dest-radio-list');
   if (!container) return;
-  container.innerHTML = destinataires.map((d, i) => `
+  if (!destinataires.length) {
+    container.innerHTML = '<div class="text-muted small fst-italic">Aucun destinataire configuré — ajoutez-en dans les Réglages.</div>';
+    return;
+  }
+  container.innerHTML = destinataires.map(d => `
     <div class="form-check mb-2">
       <input class="form-check-input" type="radio" name="dest-radio"
-             id="dest-${i}" value="${i}" ${i === selectedDest ? 'checked' : ''}>
-      <label class="form-check-label" for="dest-${i}">
+             id="dest-${d.id}" value="${escHtml(d.id)}" ${d.id === selectedDestId ? 'checked' : ''}>
+      <label class="form-check-label" for="dest-${d.id}">
         <span class="fw-semibold">${escHtml(d.label)}</span><br>
-        <span class="text-muted small">${escHtml(d.nom)} — ${escHtml(d.cp_ville)}</span>
+        <span class="text-muted small">${escHtml(d.nom)}</span>
       </label>
     </div>`).join('');
 
   container.querySelectorAll('input[name="dest-radio"]').forEach(rb => {
     rb.addEventListener('change', () => {
-      selectedDest = parseInt(rb.value, 10);
+      selectedDestId = rb.value;
       updateDestApercu();
     });
   });
@@ -263,9 +268,11 @@ function renderDestinataireRadios() {
 
 function updateDestApercu() {
   const apercu = document.getElementById('dest-apercu');
-  if (!apercu || !destinataires[selectedDest]) return;
-  const d = destinataires[selectedDest];
-  apercu.textContent = `${d.nom}  ·  ${d.adresse}  ·  ${d.cp_ville}`;
+  if (!apercu) return;
+  const d = destinataires.find(x => x.id === selectedDestId);
+  if (!d) { apercu.style.display = 'none'; return; }
+  const addrLine = d.adresse ? '  ·  ' + d.adresse.replace('\n', ', ') : '';
+  apercu.textContent = d.nom + addrLine;
   apercu.style.display = 'block';
 }
 
@@ -278,7 +285,7 @@ function genererPlainte() {
   fetch('/api/plainte', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ vol: ctxVolData, destinataire_idx: selectedDest }),
+    body:    JSON.stringify({ vol: ctxVolData, destinataire_id: selectedDestId }),
   })
     .then(r => {
       if (!r.ok) return r.json().then(j => { throw new Error(j.error || 'Erreur serveur'); });

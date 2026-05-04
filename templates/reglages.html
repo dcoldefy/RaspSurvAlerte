@@ -29,6 +29,11 @@
     <i class="bi bi-check-circle-fill me-2"></i>Mot de passe admin mis à jour.
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
   </div>
+{% elif ok == 'destinataires' %}
+  <div class="alert alert-success alert-dismissible fade show" role="alert">
+    <i class="bi bi-check-circle-fill me-2"></i>Destinataires mis à jour.
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+  </div>
 {% endif %}
 
 <div class="row g-4">
@@ -73,20 +78,6 @@
               <datalist id="communes-list"></datalist>
             </div>
           </div>
-          <div class="mb-3">
-            <label class="form-label fw-semibold">Député(e) de ma circonscription</label>
-            <div class="input-group">
-              <select class="form-select" name="depute_civilite" style="max-width:80px;">
-                <option value="M."  {% if cfg.profil.depute_civilite == 'M.'  or not cfg.profil.depute_civilite %}selected{% endif %}>M.</option>
-                <option value="Mme" {% if cfg.profil.depute_civilite == 'Mme' %}selected{% endif %}>Mme</option>
-              </select>
-              <input type="text" class="form-control" name="depute_nom"
-                     value="{{ cfg.profil.depute_nom or '' }}"
-                     placeholder="Prénom NOM">
-            </div>
-            <div class="form-text">Laisser vide pour ne pas inclure comme destinataire de plainte.</div>
-          </div>
-
           {% if cfg.lat and cfg.lon %}
           <div class="mb-3">
             <small class="text-muted">
@@ -97,6 +88,49 @@
           {% endif %}
           <button type="submit" class="btn btn-primary w-100">
             <i class="bi bi-floppy-fill me-1"></i>Enregistrer le profil
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Carte destinataires -->
+  <div class="col-12">
+    <div class="card shadow-sm">
+      <div class="card-header d-flex align-items-center gap-2">
+        <i class="bi bi-send text-primary"></i>
+        <strong>Destinataires des plaintes</strong>
+      </div>
+      <div class="card-body">
+        <form method="post" action="/reglages/destinataires">
+          <div class="row g-3">
+            {% for d in destinataires %}
+            <div class="col-12 col-md-6">
+              <div class="border rounded p-3 h-100">
+                <div class="d-flex align-items-center gap-2 mb-2">
+                  <input class="form-check-input" type="checkbox" name="dest_{{ d.id }}_sel"
+                         id="{{ d.id }}_sel" {% if d.selectionne %}checked{% endif %}>
+                  <label class="form-check-label fw-semibold" for="{{ d.id }}_sel">{{ d.label }}</label>
+                  {% if d.fixe %}<span class="badge bg-secondary ms-1 small">adresse fixe</span>{% endif %}
+                </div>
+                {% if d.fixe %}
+                <div class="text-muted small mb-2" style="white-space:pre-line">{{ d.adresse }}</div>
+                {% else %}
+                <div class="mb-2">
+                  <input type="text" name="dest_{{ d.id }}_nom" class="form-control form-control-sm mb-1"
+                         value="{{ d.nom }}" placeholder="Nom complet">
+                  <textarea name="dest_{{ d.id }}_adresse" class="form-control form-control-sm" rows="2"
+                            placeholder="Adresse postale (ligne 1&#10;CP Ville)">{{ d.adresse }}</textarea>
+                </div>
+                {% endif %}
+                <input type="email" name="dest_{{ d.id }}_email" class="form-control form-control-sm"
+                       value="{{ d.email }}" placeholder="Email (facultatif)">
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">
+            <i class="bi bi-floppy-fill me-1"></i>Enregistrer les destinataires
           </button>
         </form>
       </div>
