@@ -225,7 +225,7 @@ body {
 }
 
 .seuil-card-link {
-  display: none;
+  display: block;
   margin-top: 3px;
   font-size: 0.58rem;
   font-weight: 600;
@@ -233,10 +233,6 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.04em;
   line-height: 1.3;
-}
-
-@media (min-width: 1200px) {
-  .seuil-card-link { display: block; }
 }
 
 /* Curseur sur toutes les lignes de vol (clic droit disponible) */
