@@ -102,12 +102,14 @@ function updateTable() {
             return true;
           }));
 
-      // Compteurs par jour (calculés sur TOUTES les lignes, pas seulement filtrées)
-      const dailyCounts = {};
+      // Rang chronologique par jour — calculé sur TOUTES les lignes avant filtrage
+      const dailyRanking = {};
       rows.forEach(r => {
-        if (!dailyCounts[r.date]) dailyCounts[r.date] = { total: 0, infractions: 0 };
-        dailyCounts[r.date].total++;
-        if (r.code) dailyCounts[r.date].infractions++;
+        if (!dailyRanking[r.date]) dailyRanking[r.date] = { total: 0, infractions: 0 };
+        dailyRanking[r.date].total++;
+        if (r.code) dailyRanking[r.date].infractions++;
+        r._rank      = dailyRanking[r.date].total;
+        r._rankInfr  = dailyRanking[r.date].infractions;
       });
 
       if (filtered.length === 0) {
@@ -122,10 +124,9 @@ function updateTable() {
       }
 
       tbody.innerHTML = filtered.map(r => {
-        const dc      = dailyCounts[r.date] || { total: 0, infractions: 0 };
-        const dcHtml  = dc.infractions > 0
-          ? `${dc.total}<br><span class="text-danger fw-semibold">${dc.infractions}</span>`
-          : `${dc.total}`;
+        const dcHtml  = r._rankInfr > 0
+          ? `${r._rank}<br><span class="text-danger fw-semibold">${r._rankInfr}</span>`
+          : `${r._rank}`;
         return `
           <tr class="${escHtml(r.css_class)}" data-code="${escHtml(r.code)}"
               data-date="${escHtml(r.date)}" data-heure="${escHtml(r.heure)}"

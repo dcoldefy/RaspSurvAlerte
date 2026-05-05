@@ -95,7 +95,7 @@
         <th class="col-sortable" data-col="icao24">ICAO24</th>
         <th class="col-sortable text-end" data-col="altitude_m">Altitude</th>
         <th class="col-sortable text-end" data-col="distance_km">Distance</th>
-        <th class="text-center small text-muted" style="white-space:nowrap;">/ jour</th>
+        <th class="text-center small text-muted" style="white-space:nowrap;">survols / jour<br><span class="text-danger">infractions</span></th>
         <th class="col-sortable text-end" data-col="vitesse_kmh">Vitesse</th>
         <th class="col-sortable text-end" data-col="cap_deg">Cap</th>
         <th class="col-sortable" data-col="pays">Pays</th>
@@ -103,9 +103,12 @@
       </tr>
     </thead>
     <tbody id="table-body">
+      {% set ns = namespace(dn={}, di={}) %}
       {% for r in rows %}
         {% set date, heure, ts, icao24, indicatif, alt_m, alt_geo, vitesse, cap, au_sol, pays, lat, lon, infraction = r %}
         {% set code = get_code(infraction or '') %}
+        {% set _ = ns.dn.update({date: ns.dn.get(date, 0) + 1}) %}
+        {% if code %}{% set _ = ns.di.update({date: ns.di.get(date, 0) + 1}) %}{% endif %}
         <tr class="{{ get_css_class(code) }}" data-code="{{ code }}"
             data-date="{{ date }}" data-heure="{{ heure }}"
             data-indicatif="{{ indicatif }}" data-icao24="{{ icao24 }}"
@@ -116,8 +119,7 @@
           <td class="text-muted small font-mono">{{ icao24 }}</td>
           <td class="text-end">{{ fmt_alt(alt_m) }}</td>
           <td class="text-end">{{ fmt_dist(distance_km(cfg.lat, cfg.lon, lat, lon)) }}</td>
-          {% set dc = daily_counts[date] %}
-          <td class="text-center small">{{ dc.total }}{% if dc.infractions > 0 %}<br><span class="text-danger fw-semibold">{{ dc.infractions }}</span>{% endif %}</td>
+          <td class="text-center small">{{ ns.dn[date] }}{% if ns.di.get(date, 0) > 0 %}<br><span class="text-danger fw-semibold">{{ ns.di[date] }}</span>{% endif %}</td>
           <td class="text-end">{{ fmt_val(vitesse, ' km/h') }}</td>
           <td class="text-end">{{ fmt_val(cap, '°') }}</td>
           <td class="small">{{ fmt_pays(pays) }}</td>
