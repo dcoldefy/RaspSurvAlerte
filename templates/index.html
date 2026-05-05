@@ -103,12 +103,18 @@
       </tr>
     </thead>
     <tbody id="table-body">
-      {% set ns = namespace(dn={}, di={}) %}
+      {# Pré-passe : totaux du jour (rows triées du plus récent au plus ancien) #}
+      {% set tot = namespace(n={}, i={}) %}
+      {% for r in rows %}{% set d=r[0] %}{% set c=get_code(r[13] or '') %}{% set _ = tot.n.update({d: tot.n.get(d,0)+1}) %}{% if c %}{% set _ = tot.i.update({d: tot.i.get(d,0)+1}) %}{% endif %}{% endfor %}
+      {# Boucle d'affichage : rang chronologique = total - position_depuis_le_haut + 1 #}
+      {% set cur = namespace(n={}, i={}) %}
       {% for r in rows %}
         {% set date, heure, ts, icao24, indicatif, alt_m, alt_geo, vitesse, cap, au_sol, pays, lat, lon, infraction = r %}
         {% set code = get_code(infraction or '') %}
-        {% set _ = ns.dn.update({date: ns.dn.get(date, 0) + 1}) %}
-        {% if code %}{% set _ = ns.di.update({date: ns.di.get(date, 0) + 1}) %}{% endif %}
+        {% set _ = cur.n.update({date: cur.n.get(date, 0) + 1}) %}
+        {% if code %}{% set _ = cur.i.update({date: cur.i.get(date, 0) + 1}) %}{% endif %}
+        {% set rank = tot.n[date] - cur.n[date] + 1 %}
+        {% set rank_i = tot.i[date] - cur.i[date] + 1 if code else 0 %}
         <tr class="{{ get_css_class(code) }}" data-code="{{ code }}"
             data-date="{{ date }}" data-heure="{{ heure }}"
             data-indicatif="{{ indicatif }}" data-icao24="{{ icao24 }}"
@@ -119,7 +125,7 @@
           <td class="text-muted small font-mono">{{ icao24 }}</td>
           <td class="text-end">{{ fmt_alt(alt_m) }}</td>
           <td class="text-end">{{ fmt_dist(distance_km(cfg.lat, cfg.lon, lat, lon)) }}</td>
-          <td class="text-center small">{{ ns.dn[date] }}{% if ns.di.get(date, 0) > 0 %}<br><span class="text-danger fw-semibold">{{ ns.di[date] }}</span>{% endif %}</td>
+          <td class="text-center small">{{ rank }}{% if rank_i > 0 %}<br><span class="text-danger fw-semibold">{{ rank_i }}</span>{% endif %}</td>
           <td class="text-end">{{ fmt_val(vitesse, ' km/h') }}</td>
           <td class="text-end">{{ fmt_val(cap, '°') }}</td>
           <td class="small">{{ fmt_pays(pays) }}</td>
