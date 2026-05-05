@@ -186,6 +186,10 @@ class Scanner:
                 categorie = s["categorie"]
                 au_sol    = s["au_sol"]
 
+                if alt_m is not None and alt_m > 8000:
+                    filtres += 1
+                    continue
+
                 if au_sol or not est_avion_de_ligne(indicatif, vitesse, categorie):
                     filtres += 1
                     continue
