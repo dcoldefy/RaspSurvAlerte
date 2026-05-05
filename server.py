@@ -106,7 +106,7 @@ def _access_level():
     if token and get_user_by_token(token):
         session.permanent = True
         session['user_token'] = token
-        if not already_in_session:
+        if not request.path.startswith('/api'):
             update_user_last_seen(token)
         return 'user'
     return None
