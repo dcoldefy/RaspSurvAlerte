@@ -262,7 +262,16 @@ def index():
     rows  = load_all()
     stats = get_stats()
     state = scanner.get_state()
-    return render_template("index.html", cfg=cfg, rows=rows, stats=stats, state=state)
+    daily_counts = {}
+    for r in rows:
+        date = r[0]; code = get_code(r[13] or '')
+        if date not in daily_counts:
+            daily_counts[date] = {"total": 0, "infractions": 0}
+        daily_counts[date]["total"] += 1
+        if code:
+            daily_counts[date]["infractions"] += 1
+    return render_template("index.html", cfg=cfg, rows=rows, stats=stats, state=state,
+                           daily_counts=daily_counts)
 
 
 @app.route("/reglages")

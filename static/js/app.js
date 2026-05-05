@@ -102,10 +102,18 @@ function updateTable() {
             return true;
           }));
 
+      // Compteurs par jour (calculés sur TOUTES les lignes, pas seulement filtrées)
+      const dailyCounts = {};
+      rows.forEach(r => {
+        if (!dailyCounts[r.date]) dailyCounts[r.date] = { total: 0, infractions: 0 };
+        dailyCounts[r.date].total++;
+        if (r.code) dailyCounts[r.date].infractions++;
+      });
+
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="10" class="text-center text-muted py-5">
+            <td colspan="11" class="text-center text-muted py-5">
               <i class="bi bi-radar fs-2 d-block mb-2 opacity-25"></i>
               Aucun vol correspondant au filtre actuel
             </td>
@@ -114,6 +122,10 @@ function updateTable() {
       }
 
       tbody.innerHTML = filtered.map(r => {
+        const dc      = dailyCounts[r.date] || { total: 0, infractions: 0 };
+        const dcHtml  = dc.infractions > 0
+          ? `${dc.total}<br><span class="text-danger fw-semibold">${dc.infractions}</span>`
+          : `${dc.total}`;
         return `
           <tr class="${escHtml(r.css_class)}" data-code="${escHtml(r.code)}"
               data-date="${escHtml(r.date)}" data-heure="${escHtml(r.heure)}"
@@ -125,6 +137,7 @@ function updateTable() {
             <td class="text-muted small font-mono">${escHtml(r.icao24)}</td>
             <td class="text-end">${fmtAlt(r.altitude_m)}</td>
             <td class="text-end">${fmtDist(r.distance_km)}</td>
+            <td class="text-center small">${dcHtml}</td>
             <td class="text-end">${fmtVal(r.vitesse_kmh, ' km/h')}</td>
             <td class="text-end">${fmtVal(r.cap_deg, '°')}</td>
             <td class="small">${escHtml(r.pays || '—')}</td>
