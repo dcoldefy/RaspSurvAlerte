@@ -102,14 +102,19 @@ function updateTable() {
             return true;
           }));
 
-      // Rang chronologique par jour — calculé sur TOUTES les lignes avant filtrage
-      const dailyRanking = {};
+      // Pré-passe : totaux par jour (rows triées du plus récent au plus ancien)
+      const dayTotal = {}, dayInfrTotal = {};
       rows.forEach(r => {
-        if (!dailyRanking[r.date]) dailyRanking[r.date] = { total: 0, infractions: 0 };
-        dailyRanking[r.date].total++;
-        if (r.code) dailyRanking[r.date].infractions++;
-        r._rank      = dailyRanking[r.date].total;
-        r._rankInfr  = dailyRanking[r.date].infractions;
+        dayTotal[r.date] = (dayTotal[r.date] || 0) + 1;
+        if (r.code) dayInfrTotal[r.date] = (dayInfrTotal[r.date] || 0) + 1;
+      });
+      // Rang chronologique : rang = total - position_depuis_le_haut + 1
+      const dayCur = {}, dayInfrCur = {};
+      rows.forEach(r => {
+        dayCur[r.date] = (dayCur[r.date] || 0) + 1;
+        if (r.code) dayInfrCur[r.date] = (dayInfrCur[r.date] || 0) + 1;
+        r._rank     = dayTotal[r.date] - dayCur[r.date] + 1;
+        r._rankInfr = r.code ? dayInfrTotal[r.date] - dayInfrCur[r.date] + 1 : 0;
       });
 
       if (filtered.length === 0) {
