@@ -133,8 +133,8 @@ class Scanner:
             alt_m   = int(f.altitude * 0.3048) if f.altitude else None
             vitesse = int(f.ground_speed * 1.852) if f.ground_speed else None
             # [TEST] vertical_speed en fpm (int) ou N/A si indisponible
-        taux = f.vertical_speed if isinstance(f.vertical_speed, (int, float)) else None
-        states.append({
+            taux = f.vertical_speed if isinstance(f.vertical_speed, (int, float)) else None
+            states.append({
                 "icao":        icao,
                 "indicatif":   (f.callsign or "").strip() or "-",
                 "pays":        "-",
