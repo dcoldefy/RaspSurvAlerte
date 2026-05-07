@@ -101,17 +101,18 @@ class Scanner:
         states = []
         for s in raw:
             states.append({
-                "icao":      (s[0] or "").strip(),
-                "indicatif": (s[1] or "").strip() or "-",
-                "pays":      s[2] or "-",
-                "lat":       s[6],
-                "lon":       s[5],
-                "alt_m":     int(s[7])       if s[7] is not None else None,
-                "alt_geo":   int(s[13])      if s[13] is not None else None,
-                "vitesse":   int(s[9] * 3.6) if s[9] is not None else None,
-                "cap":       int(s[10])      if s[10] is not None else None,
-                "au_sol":    1 if s[8] else 0,
-                "categorie": s[16] if len(s) > 16 else None,
+                "icao":        (s[0] or "").strip(),
+                "indicatif":   (s[1] or "").strip() or "-",
+                "pays":        s[2] or "-",
+                "lat":         s[6],
+                "lon":         s[5],
+                "alt_m":       int(s[7])       if s[7] is not None else None,
+                "alt_geo":     int(s[13])      if s[13] is not None else None,
+                "vitesse":     int(s[9] * 3.6) if s[9] is not None else None,
+                "cap":         int(s[10])      if s[10] is not None else None,
+                "au_sol":      1 if s[8] else 0,
+                "categorie":   s[16] if len(s) > 16 else None,
+                "taux_montee": int(s[11] * 196.85) if s[11] is not None else None,  # [TEST] m/s → fpm
             })
         return states, credits_remaining
 
@@ -131,18 +132,21 @@ class Scanner:
             # FR24 : altitude en pieds, vitesse en nœuds
             alt_m   = int(f.altitude * 0.3048) if f.altitude else None
             vitesse = int(f.ground_speed * 1.852) if f.ground_speed else None
+            # [TEST] vertical_speed en fpm (int) ou N/A si indisponible
+            taux = f.vertical_speed if isinstance(f.vertical_speed, (int, float)) else None
             states.append({
-                "icao":      icao,
-                "indicatif": (f.callsign or "").strip() or "-",
-                "pays":      "-",
-                "lat":       f.latitude,
-                "lon":       f.longitude,
-                "alt_m":     alt_m,
-                "alt_geo":   alt_m,
-                "vitesse":   vitesse,
-                "cap":       int(f.heading) if f.heading else None,
-                "au_sol":    1 if f.on_ground else 0,
-                "categorie": None,
+                "icao":        icao,
+                "indicatif":   (f.callsign or "").strip() or "-",
+                "pays":        "-",
+                "lat":         f.latitude,
+                "lon":         f.longitude,
+                "alt_m":       alt_m,
+                "alt_geo":     alt_m,
+                "vitesse":     vitesse,
+                "cap":         int(f.heading) if f.heading else None,
+                "au_sol":      1 if f.on_ground else 0,
+                "categorie":   None,
+                "taux_montee": taux,
             })
         return states, None
 
@@ -180,10 +184,11 @@ class Scanner:
                 if not icao:
                     continue
 
-                alt_m     = s["alt_m"]
-                vitesse   = s["vitesse"]
-                indicatif = s["indicatif"]
-                categorie = s["categorie"]
+                alt_m       = s["alt_m"]
+                vitesse     = s["vitesse"]
+                indicatif   = s["indicatif"]
+                categorie   = s["categorie"]
+                taux_montee = s.get("taux_montee")  # [TEST]
                 au_sol    = s["au_sol"]
 
                 if alt_m is not None and alt_m > 8000:
@@ -221,7 +226,8 @@ class Scanner:
 
                 if icao in active_flights:
                     flight = active_flights[icao]
-                    flight["last_seen"] = now_ts
+                    flight["last_seen"]   = now_ts
+                    flight["taux_montee"] = taux_montee  # [TEST]
                     if flight["has_infraction"]:
                         frozen += 1
                     else:
@@ -238,6 +244,7 @@ class Scanner:
                         "id":             db_id,
                         "has_infraction": bool(code_infr),
                         "last_seen":      now_ts,
+                        "taux_montee":    taux_montee,  # [TEST]
                     }
                     added += 1
 
