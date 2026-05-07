@@ -222,12 +222,12 @@ class Scanner:
                     "lat":          s["lat"],
                     "lon":          s["lon"],
                     "infraction":   msg_infr,
+                    "taux_montee":  taux_montee,
                 }
 
                 if icao in active_flights:
                     flight = active_flights[icao]
-                    flight["last_seen"]   = now_ts
-                    flight["taux_montee"] = taux_montee  # [TEST]
+                    flight["last_seen"] = now_ts
                     if flight["has_infraction"]:
                         frozen += 1
                     else:
@@ -244,7 +244,6 @@ class Scanner:
                         "id":             db_id,
                         "has_infraction": bool(code_infr),
                         "last_seen":      now_ts,
-                        "taux_montee":    taux_montee,  # [TEST]
                     }
                     added += 1
 

@@ -8,7 +8,7 @@ from datetime import datetime
 
 from config import DB_FILE, DEDUP_WINDOW
 
-SCHEMA_VERSION = 6
+SCHEMA_VERSION = 7
 
 
 def init_db():
@@ -50,6 +50,9 @@ def init_db():
         if current < 6:
             c.execute("ALTER TABLE users ADD COLUMN destinataires TEXT")
 
+        if current < 7:
+            c.execute("ALTER TABLE survols ADD COLUMN taux_montee INTEGER")
+
         if current < SCHEMA_VERSION:
             c.execute("DELETE FROM schema_version")
             c.execute("INSERT INTO schema_version VALUES (?)", (SCHEMA_VERSION,))
@@ -62,11 +65,12 @@ def save_passage(row):
         c = conn.cursor()
         c.execute("""INSERT INTO survols
             (date,heure,timestamp,icao24,indicatif,altitude_m,altitude_geo,
-             vitesse_kmh,cap_deg,au_sol,pays,lat,lon,infraction)
-            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
+             vitesse_kmh,cap_deg,au_sol,pays,lat,lon,infraction,taux_montee)
+            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)""",
             (row["date"], row["heure"], row["timestamp"], row["icao24"], row["indicatif"],
              row["altitude_m"], row["altitude_geo"], row["vitesse_kmh"], row["cap_deg"],
-             row["au_sol"], row["pays"], row["lat"], row["lon"], row["infraction"]))
+             row["au_sol"], row["pays"], row["lat"], row["lon"], row["infraction"],
+             row.get("taux_montee")))
         row_id = c.lastrowid
         conn.commit()
     return row_id
@@ -78,10 +82,11 @@ def update_passage(db_id, row):
         c = conn.cursor()
         c.execute("""UPDATE survols SET
             altitude_m=?, altitude_geo=?, vitesse_kmh=?, cap_deg=?,
-            lat=?, lon=?, infraction=?, timestamp=?
+            lat=?, lon=?, infraction=?, timestamp=?, taux_montee=?
             WHERE id=?""",
             (row["altitude_m"], row["altitude_geo"], row["vitesse_kmh"], row["cap_deg"],
-             row["lat"], row["lon"], row["infraction"], row["timestamp"], db_id))
+             row["lat"], row["lon"], row["infraction"], row["timestamp"],
+             row.get("taux_montee"), db_id))
         conn.commit()
 
 
@@ -107,7 +112,7 @@ def load_all():
     with sqlite3.connect(DB_FILE) as conn:
         c = conn.cursor()
         c.execute("""SELECT date,heure,timestamp,icao24,indicatif,altitude_m,altitude_geo,
-                            vitesse_kmh,cap_deg,au_sol,pays,lat,lon,infraction
+                            vitesse_kmh,cap_deg,au_sol,pays,lat,lon,infraction,taux_montee
                      FROM survols ORDER BY timestamp DESC""")
         rows = c.fetchall()
     return rows
