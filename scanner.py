@@ -195,7 +195,7 @@ class Scanner:
                     filtres += 1
                     continue
 
-                if au_sol or not est_avion_de_ligne(indicatif, vitesse, categorie):
+                if au_sol or not est_avion_de_ligne(indicatif, vitesse, categorie, cfg.get("prefixes_exclus", [])):
                     filtres += 1
                     continue
 

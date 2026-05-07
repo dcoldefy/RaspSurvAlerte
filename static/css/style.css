@@ -297,6 +297,16 @@ body {
   margin: 3px 0;
 }
 
+#ctx-menu .ctx-exclure {
+  color: #6c757d;
+  font-size: 0.82rem;
+}
+
+#ctx-menu .ctx-exclure:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
 /* ── Pied de page ───────────────────────────────────────────────── */
 .footer-bar {
   background: #fff;

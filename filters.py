@@ -56,17 +56,20 @@ _CALLSIGN_RE = re.compile(r'^[A-Z]{3}[0-9]{1,4}[A-Z]{0,2}$')
 _CAT_EXCLUES = {"A1", "A2", "A7", "B1", "B2", "B3", "B4"}
 
 
-def est_avion_de_ligne(indicatif, vitesse_kmh, categorie=None):
+def est_avion_de_ligne(indicatif, vitesse_kmh, categorie=None, prefixes_exclus=None):
     """
     Retourne True si l'aéronef est probablement un vol commercial.
     Couche 1 — indicatif : format OACI compagnie strict (3 lettres + chiffres).
-    Couche 2 — vitesse   : > 150 km/h.
-    Couche 3 — catégorie : exclut légers, hélicos, ULM, planeurs.
+    Couche 2 — préfixe   : exclu si dans prefixes_exclus (config) ou opérateurs connus non-commerciaux.
+    Couche 3 — vitesse   : > 150 km/h.
+    Couche 4 — catégorie : exclut légers, hélicos, ULM, planeurs.
     """
     cs = (indicatif or "").strip().upper()
     if not cs or cs == "-":
         return False
     if not _CALLSIGN_RE.match(cs):
+        return False
+    if cs[:3] in set(prefixes_exclus or []):
         return False
     if vitesse_kmh is not None and vitesse_kmh < 150:
         return False

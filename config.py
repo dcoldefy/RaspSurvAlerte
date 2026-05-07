@@ -27,6 +27,7 @@ DEFAULTS = {
     "opensky_user": "",
     "opensky_pass": "",
     "source": "flightradar24",
+    "prefixes_exclus": ["JFA"],
     "admin_password_hash": "",
     "secret_key": "",
     "profil": {
