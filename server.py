@@ -261,13 +261,10 @@ def api_survols():
     cfg_data = config.load()
     cfg_lat  = cfg_data.get("lat")
     cfg_lon  = cfg_data.get("lon")
-    # [TEST] taux_montee depuis les vols actifs en mémoire (non persisté en BDD)
-    active   = scanner.get_state().get("active_flights", {})
-    taux_map = {icao: af.get("taux_montee") for icao, af in active.items()}
     result   = []
     for r in rows:
         (date, heure, ts, icao24, indicatif, alt_m, alt_geo,
-         vitesse, cap, au_sol, pays, lat, lon, infraction) = r
+         vitesse, cap, au_sol, pays, lat, lon, infraction, taux_montee) = r
         code = get_code(infraction or "")
         dist = distance_km(cfg_lat, cfg_lon, lat, lon)
         result.append({
@@ -283,7 +280,7 @@ def api_survols():
             "css_class":    get_css_class(code),
             "badge":        get_badge(code),
             "seuil":        get_seuil_display(code, infraction or ""),
-            "taux_montee":  taux_map.get(icao24),  # [TEST] None pour vols historiques
+            "taux_montee":  taux_montee,
         })
     return jsonify(result)
 
