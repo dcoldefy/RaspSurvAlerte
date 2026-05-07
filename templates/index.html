@@ -165,7 +165,7 @@
 
 {% block scripts %}
 <script>
-  window.RASPALERT = { activeFilter: 'tous' };
+  window.RASPALERT = { activeFilter: 'tous', isAdmin: {{ 'true' if is_admin else 'false' }} };
 </script>
 
 <!-- Menu contextuel clic droit -->
@@ -183,6 +183,11 @@
   <div class="ctx-item" id="ctx-fr24">
     <i class="bi bi-box-arrow-up-right"></i>
     Voir sur Flightradar24
+  </div>
+  <div class="ctx-sep" id="ctx-sep-exclure" style="display:none;"></div>
+  <div class="ctx-item ctx-exclure" id="ctx-exclure" style="display:none;">
+    <i class="bi bi-slash-circle"></i>
+    Pas un avion de ligne
   </div>
 </div>
 

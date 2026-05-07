@@ -209,6 +209,17 @@ function pad(n) {
   return String(n).padStart(2, '0');
 }
 
+function showToast(msg, isError = false) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);'
+    + 'background:' + (isError ? '#dc3545' : '#198754') + ';color:#fff;'
+    + 'padding:.5rem 1.2rem;border-radius:6px;font-size:.85rem;z-index:99999;'
+    + 'box-shadow:0 2px 8px rgba(0,0,0,.25);white-space:nowrap;';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+
 /* ── Menu contextuel (clic droit) ─────────────────────────────────────── */
 
 let ctxMenu      = null;
@@ -246,6 +257,12 @@ function showCtxMenu(e, tr) {
   if (ctxCourrier) ctxCourrier.style.display = (code && hasCourrier) ? '' : 'none';
   if (ctxEmail)    ctxEmail.style.display    = (code && hasEmail)    ? '' : 'none';
   if (ctxSep)      ctxSep.style.display      = (code && (hasCourrier || hasEmail)) ? '' : 'none';
+
+  const isAdmin = window.RASPALERT?.isAdmin;
+  const ctxExclure    = document.getElementById('ctx-exclure');
+  const ctxSepExclure = document.getElementById('ctx-sep-exclure');
+  if (ctxExclure)    ctxExclure.style.display    = isAdmin ? '' : 'none';
+  if (ctxSepExclure) ctxSepExclure.style.display = isAdmin ? '' : 'none';
 
   const x = Math.min(e.clientX, window.innerWidth  - 240);
   const y = Math.min(e.clientY, window.innerHeight - 120);
@@ -412,6 +429,28 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('ctx-plainte-email')?.addEventListener('click', () => {
       hideCtxMenu();
       ouvrirModalPlainte('email');
+    });
+
+    document.getElementById('ctx-exclure')?.addEventListener('click', () => {
+      if (!ctxVolData) return;
+      hideCtxMenu();
+      fetch('/api/exclure-prefixe', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ indicatif: ctxVolData.indicatif }),
+      })
+        .then(r => r.json())
+        .then(d => {
+          if (d.ok) {
+            const msg = d.deja_present
+              ? `Préfixe « ${d.prefixe} » déjà dans la liste noire.`
+              : `Préfixe « ${d.prefixe} » ajouté — ignoré dès le prochain scan.`;
+            showToast(msg);
+          } else {
+            showToast('Erreur : ' + (d.error || '?'), true);
+          }
+        })
+        .catch(() => showToast('Erreur réseau', true));
     });
   }
 

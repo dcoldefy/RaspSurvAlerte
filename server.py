@@ -375,6 +375,26 @@ def api_stats():
     return jsonify(get_stats())
 
 
+@app.route("/api/exclure-prefixe", methods=["POST"])
+def api_exclure_prefixe():
+    if not session.get('is_admin'):
+        return jsonify({"error": "Non autorisé"}), 403
+    data = request.get_json() or {}
+    indicatif = (data.get("indicatif") or "").strip().upper()
+    m = re.match(r'^([A-Z]{3})', indicatif)
+    if not m:
+        return jsonify({"error": f"Indicatif invalide : {indicatif!r}"}), 400
+    prefixe = m.group(1)
+    cfg = config.load()
+    exclus = cfg.get("prefixes_exclus", [])
+    if prefixe in exclus:
+        return jsonify({"prefixe": prefixe, "ok": True, "deja_present": True})
+    exclus.append(prefixe)
+    cfg["prefixes_exclus"] = sorted(exclus)
+    config.save(cfg)
+    return jsonify({"prefixe": prefixe, "ok": True, "deja_present": False})
+
+
 @app.route("/api/status")
 def api_status():
     import time as _time
