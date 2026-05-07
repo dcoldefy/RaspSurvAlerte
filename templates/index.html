@@ -99,6 +99,7 @@
         <th class="col-sortable text-end" data-col="vitesse_kmh">Vitesse</th>
         <th class="col-sortable text-end" data-col="cap_deg">Cap</th>
         <th class="col-sortable" data-col="pays">Pays</th>
+        <th class="text-center small" title="[TEST] Taux vertical FR24">↑↓</th>
         <th class="col-sortable" data-col="code">Infraction</th>
       </tr>
     </thead>
@@ -129,6 +130,7 @@
           <td class="text-end">{{ fmt_val(vitesse, ' km/h') }}</td>
           <td class="text-end">{{ fmt_val(cap, '°') }}</td>
           <td class="small">{{ fmt_pays(pays) }}</td>
+          <td class="text-center small">—</td>
           <td>
             {{ get_badge(code) | safe }}
             {% if code %}
@@ -142,7 +144,7 @@
         </tr>
       {% else %}
         <tr id="empty-row">
-          <td colspan="11" class="text-center text-muted py-5">
+          <td colspan="12" class="text-center text-muted py-5">
             <i class="bi bi-radar fs-2 d-block mb-2 opacity-25"></i>
             Aucun vol enregistré — le scanner démarre dans quelques instants
           </td>

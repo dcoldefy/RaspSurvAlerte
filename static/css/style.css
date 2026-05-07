@@ -203,6 +203,10 @@ body {
   border-left: 4px solid #c0392b;
 }
 
+/* [TEST] taux vertical montée/descente */
+.row-montee  { background-color: rgba(40, 167,  69, 0.06); }
+.row-descente { background-color: rgba(220, 53,  69, 0.06); }
+
 .infr-vals {
   font-size: 0.8rem;
   font-weight: 600;
