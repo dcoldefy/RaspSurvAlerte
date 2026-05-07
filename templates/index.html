@@ -95,11 +95,11 @@
         <th class="col-sortable" data-col="icao24">ICAO24</th>
         <th class="col-sortable text-end" data-col="altitude_m">Altitude</th>
         <th class="col-sortable text-end" data-col="distance_km">Distance</th>
+        <th class="text-center small" title="[TEST] Taux vertical FR24">↑↓</th>
         <th class="text-center small" style="white-space:nowrap;">survols / jour<br><span class="text-danger">infractions / jour</span></th>
         <th class="col-sortable text-end" data-col="vitesse_kmh">Vitesse</th>
         <th class="col-sortable text-end" data-col="cap_deg">Cap</th>
         <th class="col-sortable" data-col="pays">Pays</th>
-        <th class="text-center small" title="[TEST] Taux vertical FR24">↑↓</th>
         <th class="col-sortable" data-col="code">Infraction</th>
       </tr>
     </thead>
@@ -126,11 +126,11 @@
           <td class="text-muted small font-mono">{{ icao24 }}</td>
           <td class="text-end">{{ fmt_alt(alt_m) }}</td>
           <td class="text-end">{{ fmt_dist(distance_km(cfg.lat, cfg.lon, lat, lon)) }}</td>
+          <td class="text-center small">—</td>
           <td class="text-center small">{{ rank }}{% if rank_i > 0 %}<br><span class="text-danger fw-semibold">{{ rank_i }}</span>{% endif %}</td>
           <td class="text-end">{{ fmt_val(vitesse, ' km/h') }}</td>
           <td class="text-end">{{ fmt_val(cap, '°') }}</td>
           <td class="small">{{ fmt_pays(pays) }}</td>
-          <td class="text-center small">—</td>
           <td>
             {{ get_badge(code) | safe }}
             {% if code %}

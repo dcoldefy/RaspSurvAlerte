@@ -150,11 +150,11 @@ function updateTable() {
             <td class="text-muted small font-mono">${escHtml(r.icao24)}</td>
             <td class="text-end">${fmtAlt(r.altitude_m)}</td>
             <td class="text-end">${fmtDist(r.distance_km)}</td>
+            <td class="text-center small">${tmHtml}</td>
             <td class="text-center small">${dcHtml}</td>
             <td class="text-end">${fmtVal(r.vitesse_kmh, ' km/h')}</td>
             <td class="text-end">${fmtVal(r.cap_deg, '°')}</td>
             <td class="small">${escHtml(r.pays || '—')}</td>
-            <td class="text-center small">${tmHtml}</td>
             <td>${r.badge}${buildInfrDetail(r)}</td>
           </tr>`;
       }).join('');
