@@ -93,8 +93,8 @@ function updateTable() {
       const filtered = sortRows(activeFilter === 'tous'
         ? rows
         : rows.filter(r => {
-            if (activeFilter === 'ALT')  return r.code === 'ALT';
-            if (activeFilter === 'NUIT') return r.code === 'NUIT';
+            if (activeFilter === 'ALT')  return r.code === 'ALT'  || r.code === 'ALT+NUIT';
+            if (activeFilter === 'NUIT') return r.code === 'NUIT' || r.code === 'ALT+NUIT';
             return true;
           }));
 
