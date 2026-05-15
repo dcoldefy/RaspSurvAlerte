@@ -40,8 +40,7 @@
         <div class="stat-value small-val">
           {% if cfg.profil.ville %}{{ cfg.profil.ville }}{% else %}—{% endif %}
         </div>
-        <div class="stat-label">Zone surveillée · {{ cfg.rayon_km }} km</div>
-        <div class="stat-sub">altitude &lt; {{ cfg.alt_max_scan }} m</div>
+        <div class="stat-label">Zone surveillée · {{ cfg.rayon_km }} km · alt. &lt; {{ cfg.alt_max_scan }} m</div>
       </div>
     </div>
     {% if is_admin %}</a>{% endif %}
