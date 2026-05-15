@@ -345,12 +345,12 @@ body {
 /* Colonnes masquées : ICAO24, Vitesse, Cap, Pays */
 #main-table th:nth-child(4),
 #main-table td:nth-child(4),
+#main-table th:nth-child(8),
+#main-table td:nth-child(8),
 #main-table th:nth-child(9),
 #main-table td:nth-child(9),
 #main-table th:nth-child(10),
-#main-table td:nth-child(10),
-#main-table th:nth-child(11),
-#main-table td:nth-child(11) {
+#main-table td:nth-child(10) {
   display: none;
 }
 

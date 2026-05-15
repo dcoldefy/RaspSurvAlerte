@@ -120,7 +120,7 @@ function updateTable() {
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="12" class="text-center text-muted py-5">
+            <td colspan="11" class="text-center text-muted py-5">
               <i class="bi bi-radar fs-2 d-block mb-2 opacity-25"></i>
               Aucun vol correspondant au filtre actuel
             </td>
@@ -132,15 +132,8 @@ function updateTable() {
         const dcHtml  = r._rankInfr > 0
           ? `${r._rank}<br><span class="text-danger fw-semibold">${r._rankInfr}</span>`
           : `${r._rank}`;
-        // [TEST] colonne taux vertical
-        const tm = r.taux_montee;
-        const tmHtml = tm == null ? '—'
-          : tm > 0  ? `<span class="text-success">↑ ${tm}</span>`
-          : tm < 0  ? `<span class="text-danger">↓ ${Math.abs(tm)}</span>`
-          : '→ 0';
-        const tmClass = tm == null ? '' : tm > 0 ? ' row-montee' : tm < 0 ? ' row-descente' : '';
         return `
-          <tr class="${escHtml(r.css_class)}${tmClass}" data-code="${escHtml(r.code)}"
+          <tr class="${escHtml(r.css_class)}" data-code="${escHtml(r.code)}"
               data-date="${escHtml(r.date)}" data-heure="${escHtml(r.heure)}"
               data-indicatif="${escHtml(r.indicatif)}" data-icao24="${escHtml(r.icao24)}"
               data-altitude="${r.altitude_m != null ? r.altitude_m : ''}">
@@ -150,7 +143,6 @@ function updateTable() {
             <td class="text-muted small font-mono">${escHtml(r.icao24)}</td>
             <td class="text-end">${fmtAlt(r.altitude_m)}</td>
             <td class="text-end">${fmtDist(r.distance_km)}</td>
-            <td class="text-center small">${tmHtml}</td>
             <td class="text-center small">${dcHtml}</td>
             <td class="text-end">${fmtVal(r.vitesse_kmh, ' km/h')}</td>
             <td class="text-end">${fmtVal(r.cap_deg, '°')}</td>

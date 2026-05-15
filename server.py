@@ -264,23 +264,22 @@ def api_survols():
     result   = []
     for r in rows:
         (date, heure, ts, icao24, indicatif, alt_m, alt_geo,
-         vitesse, cap, au_sol, pays, lat, lon, infraction, taux_montee) = r
+         vitesse, cap, au_sol, pays, lat, lon, infraction) = r
         code = get_code(infraction or "")
         dist = distance_km(cfg_lat, cfg_lon, lat, lon)
         result.append({
             "date": date, "heure": heure, "icao24": icao24,
-            "indicatif":    indicatif,
-            "altitude_m":   alt_m,
-            "distance_km":  round(dist, 1) if dist is not None else None,
-            "vitesse_kmh":  vitesse,
-            "cap_deg":      cap,
-            "pays":         pays,
-            "infraction":   infraction or "",
-            "code":         code,
-            "css_class":    get_css_class(code),
-            "badge":        get_badge(code),
-            "seuil":        get_seuil_display(code, infraction or ""),
-            "taux_montee":  taux_montee,
+            "indicatif":   indicatif,
+            "altitude_m":  alt_m,
+            "distance_km": round(dist, 1) if dist is not None else None,
+            "vitesse_kmh": vitesse,
+            "cap_deg":     cap,
+            "pays":        pays,
+            "infraction":  infraction or "",
+            "code":        code,
+            "css_class":   get_css_class(code),
+            "badge":       get_badge(code),
+            "seuil":       get_seuil_display(code, infraction or ""),
         })
     return jsonify(result)
 
