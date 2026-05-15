@@ -102,6 +102,12 @@ body {
   margin-top: 1px;
 }
 
+.stat-sub {
+  font-size: 0.60rem;
+  color: #6c757d;
+  margin-top: 2px;
+}
+
 /* Stat cards plus grandes sur écran large */
 @media (min-width: 1200px) {
   .stat-card {

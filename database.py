@@ -120,9 +120,12 @@ def get_stats():
         n_infr = c.fetchone()[0]
         c.execute("SELECT heure, indicatif FROM survols ORDER BY timestamp DESC LIMIT 1")
         last = c.fetchone()
+        c.execute("SELECT date FROM survols ORDER BY timestamp ASC LIMIT 1")
+        first = c.fetchone()
     return {
         "total": total,
         "infractions": n_infr,
+        "first_date": first[0] if first else None,
         "last_heure": last[0] if last else None,
         "last_indicatif": last[1] if last else None,
     }
