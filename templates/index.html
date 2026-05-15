@@ -114,7 +114,7 @@
         {% set _ = cur.n.update({date: cur.n.get(date, 0) + 1}) %}
         {% if code %}{% set _ = cur.i.update({date: cur.i.get(date, 0) + 1}) %}{% endif %}
         {% set rank = tot.n[date] - cur.n[date] + 1 %}
-        {% set rank_i = tot.i[date] - cur.i[date] + 1 if code else 0 %}
+        {% set rank_i = (tot.i[date] - cur.i[date] + 1) if code else tot.i.get(date, 0) %}
         <tr class="{{ get_css_class(code) }}" data-code="{{ code }}"
             data-date="{{ date }}" data-heure="{{ heure }}"
             data-indicatif="{{ indicatif }}" data-icao24="{{ icao24 }}"

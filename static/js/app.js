@@ -114,7 +114,7 @@ function updateTable() {
         dayCur[r.date] = (dayCur[r.date] || 0) + 1;
         if (r.code) dayInfrCur[r.date] = (dayInfrCur[r.date] || 0) + 1;
         r._rank     = dayTotal[r.date] - dayCur[r.date] + 1;
-        r._rankInfr = r.code ? dayInfrTotal[r.date] - dayInfrCur[r.date] + 1 : 0;
+        r._rankInfr = r.code ? dayInfrTotal[r.date] - dayInfrCur[r.date] + 1 : (dayInfrTotal[r.date] || 0);
       });
 
       if (filtered.length === 0) {
