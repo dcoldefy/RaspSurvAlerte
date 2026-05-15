@@ -186,7 +186,7 @@ class Scanner:
                 categorie   = s["categorie"]
                 au_sol    = s["au_sol"]
 
-                if alt_m is not None and alt_m > 8000:
+                if alt_m is not None and alt_m > cfg.get("alt_max_scan", 8000):
                     filtres += 1
                     continue
 

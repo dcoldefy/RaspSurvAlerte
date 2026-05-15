@@ -548,7 +548,8 @@ def save_seuils():
     if not session.get('is_admin'):
         return redirect(url_for('login'))
     cfg = config.load()
-    cfg["alt_min_legale"] = max(0, int(request.form.get("alt_min_legale", 1000)))
+    cfg["alt_min_legale"] = max(0, int(request.form.get("alt_min_legale", 1150)))
+    cfg["alt_max_scan"]   = max(1000, min(15000, int(request.form.get("alt_max_scan", 8000))))
     cfg["heure_nuit_deb"] = max(0, min(23.5, float(request.form.get("heure_nuit_deb", 22))))
     cfg["heure_nuit_fin"] = max(0, min(23.5, float(request.form.get("heure_nuit_fin", 6))))
     cfg["rayon_km"]       = max(1, min(50, int(request.form.get("rayon_km", 3))))

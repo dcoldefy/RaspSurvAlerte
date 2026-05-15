@@ -114,16 +114,34 @@
         <form method="post" action="/reglages/seuils">
 
           <div class="mb-4">
-            <label class="form-label fw-semibold">
-              Altitude minimale légale
-              <span class="badge bg-warning text-dark ms-1" id="alt-val">{{ cfg.alt_min_legale }} m</span>
-            </label>
-            <input type="range" class="form-range" name="alt_min_legale"
-                   id="alt-range" min="100" max="3000" step="50"
-                   value="{{ cfg.alt_min_legale }}"
-                   oninput="document.getElementById('alt-val').textContent = this.value + ' m'">
-            <div class="d-flex justify-content-between text-muted small">
-              <span>100 m</span><span>3 000 m</span>
+            <label class="form-label fw-semibold">Altitudes de détection</label>
+            <div class="row g-3">
+              <div class="col-6">
+                <label class="form-label small text-muted">
+                  Minimum légal
+                  <span class="badge bg-warning text-dark ms-1" id="alt-val">{{ cfg.alt_min_legale }} m</span>
+                </label>
+                <input type="range" class="form-range" name="alt_min_legale"
+                       id="alt-range" min="100" max="3000" step="50"
+                       value="{{ cfg.alt_min_legale }}"
+                       oninput="document.getElementById('alt-val').textContent = this.value + ' m'">
+                <div class="d-flex justify-content-between text-muted small">
+                  <span>100 m</span><span>3 000 m</span>
+                </div>
+              </div>
+              <div class="col-6">
+                <label class="form-label small text-muted">
+                  Maximum scanné
+                  <span class="badge bg-secondary ms-1" id="altmax-val">{{ cfg.alt_max_scan }} m</span>
+                </label>
+                <input type="range" class="form-range" name="alt_max_scan"
+                       id="altmax-range" min="1000" max="15000" step="500"
+                       value="{{ cfg.alt_max_scan }}"
+                       oninput="document.getElementById('altmax-val').textContent = this.value + ' m'">
+                <div class="d-flex justify-content-between text-muted small">
+                  <span>1 000 m</span><span>15 000 m</span>
+                </div>
+              </div>
             </div>
           </div>
 
