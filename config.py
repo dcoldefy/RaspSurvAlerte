@@ -19,6 +19,7 @@ GEO_API_CENTRE = "https://geo.api.gouv.fr/communes?codePostal={cp}&nom={nom}&fie
 # Valeurs par défaut (utilisées si config.json absent ou clé manquante)
 DEFAULTS = {
     "alt_min_legale": 1150,
+    "alt_max_scan": 8000,
     "heure_nuit_deb": 0.5,
     "heure_nuit_fin": 5,
     "rayon_km": 3,
