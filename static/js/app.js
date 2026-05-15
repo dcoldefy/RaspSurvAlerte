@@ -76,8 +76,7 @@ function updateTable() {
     .then(rows => {
       const nAlt    = rows.filter(r => r.code === 'ALT').length;
       const nNuit   = rows.filter(r => r.code === 'NUIT').length;
-      const nDouble = rows.filter(r => r.code === 'ALT+NUIT').length;
-      const nInfr   = nAlt + nNuit + nDouble;
+      const nInfr   = rows.filter(r => r.code).length;
 
       if (sTotal) sTotal.textContent = rows.length;
       if (sInfr)  sInfr.textContent  = nInfr;
@@ -87,18 +86,15 @@ function updateTable() {
       const bdTous   = document.getElementById('badge-tous');
       const bdAlt    = document.getElementById('badge-alt');
       const bdNuit   = document.getElementById('badge-nuit');
-      const bdDouble = document.getElementById('badge-double');
       if (bdTous)   bdTous.textContent   = rows.length;
       if (bdAlt)    bdAlt.textContent    = nAlt;
       if (bdNuit)   bdNuit.textContent   = nNuit;
-      if (bdDouble) bdDouble.textContent = nDouble;
 
       const filtered = sortRows(activeFilter === 'tous'
         ? rows
         : rows.filter(r => {
-            if (activeFilter === 'ALT')      return r.code === 'ALT';
-            if (activeFilter === 'NUIT')     return r.code === 'NUIT';
-            if (activeFilter === 'ALT+NUIT') return r.code === 'ALT+NUIT';
+            if (activeFilter === 'ALT')  return r.code === 'ALT';
+            if (activeFilter === 'NUIT') return r.code === 'NUIT';
             return true;
           }));
 
