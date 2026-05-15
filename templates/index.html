@@ -12,6 +12,7 @@
       <div class="stat-body">
         <div class="stat-value" id="s-total">{{ stats.total }}</div>
         <div class="stat-label">Survols enregistrés</div>
+        {% if stats.first_date %}<div class="stat-sub">depuis le {{ stats.first_date }}</div>{% endif %}
       </div>
     </div>
   </div>
