@@ -112,7 +112,6 @@ class Scanner:
                 "cap":         int(s[10])      if s[10] is not None else None,
                 "au_sol":      1 if s[8] else 0,
                 "categorie":   s[16] if len(s) > 16 else None,
-                "taux_montee": int(s[11] * 196.85) if s[11] is not None else None,  # [TEST] m/s → fpm
             })
         return states, credits_remaining
 
@@ -132,8 +131,6 @@ class Scanner:
             # FR24 : altitude en pieds, vitesse en nœuds
             alt_m   = int(f.altitude * 0.3048) if f.altitude else None
             vitesse = int(f.ground_speed * 1.852) if f.ground_speed else None
-            # [TEST] vertical_speed en fpm (int) ou N/A si indisponible
-            taux = f.vertical_speed if isinstance(f.vertical_speed, (int, float)) else None
             states.append({
                 "icao":        icao,
                 "indicatif":   (f.callsign or "").strip() or "-",
@@ -146,7 +143,6 @@ class Scanner:
                 "cap":         int(f.heading) if f.heading else None,
                 "au_sol":      1 if f.on_ground else 0,
                 "categorie":   None,
-                "taux_montee": taux,
             })
         return states, None
 
@@ -188,7 +184,6 @@ class Scanner:
                 vitesse     = s["vitesse"]
                 indicatif   = s["indicatif"]
                 categorie   = s["categorie"]
-                taux_montee = s.get("taux_montee")  # [TEST]
                 au_sol    = s["au_sol"]
 
                 if alt_m is not None and alt_m > 8000:
@@ -222,7 +217,6 @@ class Scanner:
                     "lat":          s["lat"],
                     "lon":          s["lon"],
                     "infraction":   msg_infr,
-                    "taux_montee":  taux_montee,
                 }
 
                 if icao in active_flights:
