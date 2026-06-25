@@ -4,3 +4,8 @@ __pycache__/
 .survalerte/
 *.log
 .env
+
+# Export public (hors GitHub)
+export_public.py
+public_data.json
+public/

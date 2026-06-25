@@ -18,9 +18,12 @@ for i in $(seq 1 30); do
 done
 
 # Installation des dépendances
-echo "[$(date)] Installation Flask et Requests..." | tee -a "$LOG"
+echo "[$(date)] Installation des dépendances système..." | tee -a "$LOG"
 apt-get update -q >> "$LOG" 2>&1
-apt-get install -y python3-flask python3-requests >> "$LOG" 2>&1
+apt-get install -y python3-flask python3-requests python3-pip >> "$LOG" 2>&1
+
+echo "[$(date)] Installation des packages Python (pip)..." | tee -a "$LOG"
+pip3 install --break-system-packages -r "$APP/requirements.txt" >> "$LOG" 2>&1
 
 # Répertoire de configuration
 mkdir -p "$HOME/.survalerte"
