@@ -29,6 +29,7 @@ DEFAULTS = {
     "opensky_pass": "",
     "source": "flightradar24",
     "prefixes_exclus": ["JFA"],
+    "backup_usb_path": "",
     "admin_password_hash": "",
     "secret_key": "",
     "profil": {

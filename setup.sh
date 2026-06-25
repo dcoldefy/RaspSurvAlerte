@@ -30,13 +30,18 @@ mkdir -p "$HOME/.survalerte"
 chown "$USER:$USER" "$HOME/.survalerte"
 chown -R "$USER:$USER" "$APP"
 
-# Service systemd
-echo "[$(date)] Activation du service RaspSurAlert..." | tee -a "$LOG"
+# Service principal + timer de sauvegarde
+echo "[$(date)] Activation des services RaspSurAlert..." | tee -a "$LOG"
 sed "s|/home/david|$HOME|g; s|User=david|User=$USER|g" \
     "$APP/survalerte.service" > /etc/systemd/system/survalerte.service
+sed "s|/home/david|$HOME|g; s|User=david|User=$USER|g" \
+    "$APP/survalerte-backup.service" > /etc/systemd/system/survalerte-backup.service
+cp "$APP/survalerte-backup.timer" /etc/systemd/system/survalerte-backup.timer
 systemctl daemon-reload
 systemctl enable survalerte
 systemctl start survalerte
+systemctl enable survalerte-backup.timer
+systemctl start survalerte-backup.timer
 
 echo "[$(date)] Installation terminée — http://survalerte.local:5000" | tee -a "$LOG"
 

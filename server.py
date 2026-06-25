@@ -2,6 +2,7 @@
 Serveur Flask — interface web RaspSurAlert.
 Lance le scanner au démarrage, sert le dashboard et les réglages.
 """
+import os
 import re
 import secrets as _secrets
 import signal
@@ -265,12 +266,23 @@ def index():
     return render_template("index.html", cfg=cfg, rows=rows, stats=stats, state=state)
 
 
+def _get_backup_status():
+    """Lit le fichier de statut de la dernière sauvegarde."""
+    path = os.path.expanduser("~/.survalerte/backup_status.txt")
+    try:
+        line = open(path).read().strip()
+        ok_str, date, msg = line.split("|", 2)
+        return {"ok": ok_str == "OK", "date": date, "msg": msg}
+    except Exception:
+        return None
+
+
 @app.route("/reglages")
 def reglages():
     if not session.get('is_admin'):
         return redirect(url_for('login'))
     cfg = config.load()
-    return render_template("reglages.html", cfg=cfg)
+    return render_template("reglages.html", cfg=cfg, backup_status=_get_backup_status())
 
 
 @app.route("/admin/users")
@@ -598,6 +610,29 @@ def save_password():
         cfg['admin_password_hash'] = generate_password_hash(password)
         config.save(cfg)
     return redirect(url_for('reglages') + "?ok=password")
+
+
+@app.route("/reglages/backup-path", methods=["POST"])
+def save_backup_path():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+    cfg = config.load()
+    cfg["backup_usb_path"] = request.form.get("backup_usb_path", "").strip()
+    config.save(cfg)
+    return redirect(url_for("reglages") + "?ok=seuils")
+
+
+@app.route("/reglages/backup-now", methods=["POST"])
+def backup_now():
+    if not session.get('is_admin'):
+        return redirect(url_for('login'))
+    import subprocess
+    import sys
+    subprocess.Popen(
+        [sys.executable, os.path.join(os.path.dirname(__file__), "backup.py")],
+        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+    )
+    return redirect(url_for("reglages") + "?ok=backup")
 
 
 @app.route("/effacer", methods=["POST"])
