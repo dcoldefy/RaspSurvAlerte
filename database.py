@@ -11,6 +11,13 @@ from config import DB_FILE, DEDUP_WINDOW
 SCHEMA_VERSION = 7
 
 
+def _alter(c, sql):
+    try:
+        c.execute(sql)
+    except sqlite3.OperationalError:
+        pass
+
+
 def init_db():
     with sqlite3.connect(DB_FILE) as conn:
         c = conn.cursor()
@@ -36,22 +43,22 @@ def init_db():
                 created_at TEXT NOT NULL)""")
 
         if current < 3:
-            c.execute("ALTER TABLE users ADD COLUMN adresse TEXT NOT NULL DEFAULT ''")
-            c.execute("ALTER TABLE users ADD COLUMN code_postal TEXT NOT NULL DEFAULT ''")
-            c.execute("ALTER TABLE users ADD COLUMN ville TEXT NOT NULL DEFAULT ''")
+            _alter(c, "ALTER TABLE users ADD COLUMN adresse TEXT NOT NULL DEFAULT ''")
+            _alter(c, "ALTER TABLE users ADD COLUMN code_postal TEXT NOT NULL DEFAULT ''")
+            _alter(c, "ALTER TABLE users ADD COLUMN ville TEXT NOT NULL DEFAULT ''")
 
         if current < 4:
-            c.execute("ALTER TABLE users ADD COLUMN depute_civilite TEXT NOT NULL DEFAULT 'M.'")
-            c.execute("ALTER TABLE users ADD COLUMN depute_nom TEXT NOT NULL DEFAULT ''")
+            _alter(c, "ALTER TABLE users ADD COLUMN depute_civilite TEXT NOT NULL DEFAULT 'M.'")
+            _alter(c, "ALTER TABLE users ADD COLUMN depute_nom TEXT NOT NULL DEFAULT ''")
 
         if current < 5:
-            c.execute("ALTER TABLE users ADD COLUMN last_seen_at TEXT")
+            _alter(c, "ALTER TABLE users ADD COLUMN last_seen_at TEXT")
 
         if current < 6:
-            c.execute("ALTER TABLE users ADD COLUMN destinataires TEXT")
+            _alter(c, "ALTER TABLE users ADD COLUMN destinataires TEXT")
 
         if current < 7:
-            c.execute("ALTER TABLE survols ADD COLUMN taux_montee INTEGER")
+            _alter(c, "ALTER TABLE survols ADD COLUMN taux_montee INTEGER")
 
         if current < SCHEMA_VERSION:
             c.execute("DELETE FROM schema_version")
