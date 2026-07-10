@@ -93,3 +93,36 @@ server.py          — Flask app + routes + injection Jinja2 helpers
 - **OpenSky Network** `opensky-network.org/api/states/all` — flux ADS-B (anonyme, limité)
 - **hexdb.io** `hexdb.io/api/v1/aircraft/{icao24}` — type OACI de l'appareil
 - **geo.api.gouv.fr** — géocodage commune → coordonnées GPS
+
+## Export public (coldefy.com)
+
+`export_public.py` génère un JSON public et l'uploade sur OVH via FTP chaque nuit à 2h (cron root).
+
+- **URLs** : `coldefy.com/survalerte` et `coldefy.com/avion` (alias via `.htaccess`)
+- **Config FTP** : `/root/.survalerte/ftp.json` (jamais dans le dépôt)
+- **Chemin FTP OVH** : `/www/survalerte/public_data.json` (le webroot OVH est dans `www/`)
+- **Log** : `/home/david/export_public.log`
+- **Statut** : visible dans les réglages de l'interface admin
+
+```bash
+# Lancer manuellement
+cd /home/david/survalerte && sudo python3 export_public.py
+
+# Vérifier le cron (doit tourner avant le reboot de 3h)
+sudo crontab -l
+```
+
+Exemple de `/root/.survalerte/ftp.json` :
+```json
+{
+  "host": "ftp.cluster126.hosting.ovh.net",
+  "user": "coldefy",
+  "password": "...",
+  "path": "/www/survalerte/public_data.json",
+  "passive": true,
+  "tls": false,
+  "nom_zone": "Conflans-Sainte-Honorine"
+}
+```
+
+> OVH ne supporte pas TLS explicite (`AUTH TLS`) : toujours `"tls": false`.
