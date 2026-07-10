@@ -277,12 +277,28 @@ def _get_backup_status():
         return None
 
 
+def _get_export_status():
+    """Lit le fichier de statut du dernier export public FTP."""
+    path = os.path.expanduser("~/.survalerte/export_status.txt")
+    try:
+        line = open(path).read().strip()
+        ok_str, date, msg = line.split("|", 2)
+        return {"ok": ok_str == "OK", "date": date, "msg": msg}
+    except Exception:
+        return None
+
+
 @app.route("/reglages")
 def reglages():
     if not session.get('is_admin'):
         return redirect(url_for('login'))
     cfg = config.load()
-    return render_template("reglages.html", cfg=cfg, backup_status=_get_backup_status())
+    return render_template(
+        "reglages.html",
+        cfg=cfg,
+        backup_status=_get_backup_status(),
+        export_status=_get_export_status(),
+    )
 
 
 @app.route("/admin/users")
